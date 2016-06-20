@@ -1,0 +1,24 @@
+# v0.1
+
+## Features
+
+1. Implemented `read_gtf`, `read_gff`, `read_bed` and `read_bam` methods for 
+reading these formats quickly and efficiently.
+
+2. Implemented `read_format` which makes things even easier in reading these 
+formats by automatically recognising the extension and reading these files.
+
+3. Added `extract` function to extract features from `gtf` and `gff` objects.
+
+4. Added `as_granges()` to convert `gtf/gff/bed/bam` objects to GRanges 
+object for further use with Bioconductor packages.
+
+5. Added `construct_introns` to fill gaps in gene annotation and fill missing 
+feature from `gtf/gff` objects.
+
+6. Exported `tidy` function in case user wants to do decide on which columns 
+to retain on tidying.
+
+7. Added vignette and tests.
+
+## Bug fixes

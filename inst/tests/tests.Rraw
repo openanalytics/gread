@@ -1,0 +1,348 @@
+# This file should be clean of non-ASCII characters; e.g. CRAN Solaris
+# Use:  grep --color='auto' -P -n "[\x80-\xFF]" tests.Rraw
+if (!exists("test_gread", .GlobalEnv, inherits=FALSE)) {
+    require(gread)   # in dev the package should not be loaded
+    options(warn=0L) # use require() to warn but not halt if not available
+    .devtesting=FALSE
+
+    test               = gread:::test
+    compactprint       = gread:::compactprint
+    format_names       = gread:::format_names
+    find_overlaps      = gread:::find_overlaps
+    reduce_overlaps    = gread:::reduce_overlaps
+    disjoin_overlaps   = gread:::disjoin_overlaps
+    intersect_overlaps = gread:::intersect_overlaps
+    as_granges         = gread:::as_granges
+    # as_txdb            = gread:::as_txdb
+    strictly_nonunique = gread:::strictly_nonunique
+    shallow            = gread:::shallow
+    non_overlaps       = gread:::non_overlaps
+} else {
+    .devtesting=TRUE
+}
+sugg_pkgs = c("GenomicFeatures", "data.table", "GenomicAlignments", 
+    "Rsamtools", "stringi", "GenomicRanges", "S4Vectors", "rtracklayer", 
+    "knitr", "IRanges")
+inst_pkgs = rownames(installed.packages())
+lapply(setNames(sugg_pkgs, nm = sugg_pkgs), function(pkg) if(pkg %in% 
+    inst_pkgs) require(pkg, character.only=TRUE))
+
+INT = function(...) as.integer(c(...))
+
+options(warn=2L)
+nfail = ntest = lastnum = 0L
+whichfail = NULL
+.timingtests = FALSE
+started.at = Sys.time()
+
+test(0.0, read_format("unavailable.unknown"), error="File does not")
+
+## GTF -----------------------------------------------
+ff = c("exon", "stop_codon", "CDS", "start_codon")
+gtf_ans = data.table(
+            seqname="7",
+            source="protein_coding",
+             feature=ff[c(1:3,3,1,4)],
+             start=INT(27221134,27222415,27222418,27224055,27224055,27224761),
+             end=INT(27222647,27222417,27222647,27224763,27224835,27224763),
+             score=NA_real_,
+             strand="-",
+             frame=INT(NA,0,2,0,NA,0), 
+             gene_id="ENSG00000005073",
+             transcript_id="ENST00000006015",
+             exon_number=as.character(c(2,2,2,1,1,1)),
+             gene_biotype="protein_coding",
+             gene_name="HOXA11",
+             p_id="P4212",
+             transcript_name="HOXA11-001",
+             tss_id="TSS161914",
+             protein_id=c(NA,NA,"ENSP00000006015","ENSP00000006015",NA,NA))
+setattr(gtf_ans, 'class', c('gtf', class(gtf_ans)))
+
+test(1.0, read_format("unavailable.gtf"), error="not found")
+test(1.1, read_format("sample.gtf"), gtf_ans)
+test(1.2, read_gtf("sample.gtf"), gtf_ans)
+test(1.3, read_format("sample_filter.gtf", filter=TRUE), gtf_ans[-4L])
+test(1.4, read_gtf("sample_filter.gtf", filter=TRUE), gtf_ans[-4L])
+gtf_ans2 = gtf_ans[, 1:8, with=FALSE
+             ][, attributes := fread("sample.gtf", select=9L)]
+test(1.5, read_gtf("sample.gtf", tidy=FALSE), gtf_ans2)
+
+## GFF -----------------------------------------------
+gff_ans = data.table(seqname="7",
+                     source="protein_coding",
+                     feature=c("gene","RNA","exon", "exon"),
+                     start=INT(27221129, 27221134, 27221134, 27224055),
+                     end=INT(27224842, 27224835, 27222647, 27224835),
+                     score=NA_real_,
+                     strand="-",
+                     phase=NA_integer_,
+                     Alias=c("ENSG00000005073",NA,NA,NA),
+                     ID=c("ENSG00000005073","ENST00000006015",
+                        "ENST00000006015.2", "ENST00000006015.1"),
+                     Name=c("HOXA11","HOXA11-001",NA,NA),
+                     length=c("3714",NA,NA,NA),
+                     Parent=c(NA,"ENSG00000005073",
+                        "ENST00000006015", 
+                        "ENST00000006015"),
+                     transcript_id=c(NA,rep("ENST00000006015", 3L)), 
+                     gene_id="ENSG00000005073", 
+                     transcript_name=c(NA,rep("HOXA11-001", 3L)),
+                     gene_name="HOXA11")
+setattr(gff_ans, 'class', c('gff', class(gff_ans)))
+# ignore colorder. v1.9.6 of data.table lacks ignore.col.order feature
+# so doing it using setcolorder for now.
+test(2.0, read_format("unavailable.gff"), error="not found")
+test(2.1, setcolorder(read_format("sample.gff"), names(gff_ans)), gff_ans)
+test(2.2, setcolorder(read_gff("sample.gff"), names(gff_ans)), gff_ans)
+test(2.3, setcolorder(read_format("sample_filter.gff", filter=TRUE), 
+          names(gff_ans)), gff_ans[-4L])
+test(2.4, setcolorder(read_gff("sample_filter.gff", filter=TRUE), 
+          names(gff_ans)), gff_ans[-4L])
+gff_ans2 = gff_ans[, 1:8, with=FALSE
+             ][, attributes := fread("sample.gff", select=9L)]
+test(2.5, read_gff("sample.gff", tidy=FALSE), gff_ans2)
+cols = c("seqname", "source", "feature", "start", "end", "score", 
+        "strand", "phase", "Alias", "Name", "length", "Parent")
+test(2.6, read_gff("sample_no_id.gff"), gff_ans[, cols, with=FALSE], 
+            warning="GFF file")
+
+## BAM -----------------------------------------------
+bam_ans = data.table(seqname=c("1","5","X"),
+                     start=c(220276091L,79733612L,12994378L),
+                     end=c(220276834L,79733687L,12994453L),
+                     strand="-",
+                     cigar=c("29M669N46M","76M","76M"),
+                     qwidth=c(75L,76L,76L),
+                     width=c(744L,76L,76L),
+                     njunc=c(1L,0L,0L),
+                     flag=16L,
+                     NM=0L,
+                     MD=c("75","76","76"))
+setattr(bam_ans, 'class', c("bam", class(bam_ans)))
+
+test(3.0, read_format("unavailable.bam"), error="not found")
+test(3.1, read_format("sample.bam"), bam_ans)
+test(3.2, read_bam("sample.bam"), bam_ans)
+test(3.3, read_format("sample.bam", tags="NM"), bam_ans[, !"MD", with=FALSE])
+test(3.4, read_format("sample.bam", tags="XYZ"), error="invalid class")
+test(3.5, read_format("sample_indexed.bam", chromosomes="1"), bam_ans[1L])
+test(3.6, nrow(read_format("sample_indexed.bam", chromosomes="Y")), 0L)
+test(3.7, read_bam("sample.bam", tags=NULL), 
+                bam_ans[, !c("NM", "MD"), with=FALSE])
+
+## BED -----------------------------------------------
+names = c("NS500200:12:H0RBKAGXX:3:11405:20307:5324", 
+          "NS500200:10:H0PVJAGXX:3:21608:13122:16773", 
+          "NS500200:10:H0PVJAGXX:2:13108:16527:7109")
+bed_ans = data.table(seqname=c("1","5","X"),
+                     start=c(220276090L,79733611L,12994377L),
+                     end=c(220276834L,79733687L,12994453L),
+                     name=names,
+                     score="50",
+                     strand="-",
+                     thickStart=c(220276090L,79733611L,12994377L),
+                     thickEnd=c(220276834L,79733687L,12994453L),
+                     itemRgb="255,0,0",
+                     blockCount=c(2L,1L,1L),
+                     blockSizes=c("29,46","76","76"),
+                     blockStarts=c("0,698","0","0"))
+setattr(bed_ans, 'class', c("bed", class(bed_ans)))
+
+test(4.0, read_format("unavailable.bed"), error="not found")
+test(4.1, read_format("sample.bed"), bed_ans)
+test(4.2, read_bed("sample.bed"), bed_ans)
+test(4.3, read_format("sample.bed", tidy=FALSE), bed_ans)
+test(4.4, read_bed("sample.bed", tidy=FALSE), bed_ans)
+
+## tidy ------------------------------------------------------
+
+gtf <- read_format("sample.gtf", tidy=FALSE)
+test(5.1, names(gtf), format_names("gtf"))
+tidy(gtf, remove_cols=NULL) # tidy, but don't remove attributes col
+test(5.2, sort(names(gtf)), sort(c(format_names("gtf"), 
+    tail(names(gtf_ans), -8L)))) # ignore order since rtracklayer returns 
+                                 # columns in different order
+tidy(gtf, remove_cols="attributes")
+test(5.3, sort(names(gtf)), sort(names(gtf_ans)))
+
+gff <- read_format("sample.gff", tidy=FALSE)
+test(5.4, names(gff), format_names("gff"))
+tidy(gff, remove_cols=NULL) # tidy, but don't remove attributes col
+test(5.5, sort(names(gff)), sort(c(format_names("gff"), 
+    tail(names(gff_ans), -8L)))) # ignore order since rtracklayer returns 
+                                 # columns in different order
+tidy(gff, remove_cols="attributes")
+test(5.6, sort(names(gff)), sort(names(gff_ans)))
+
+bed <- read_format("sample.bed", tidy=FALSE)
+tidy(bed, remove_cols="name") # tidy, but don't remove attributes col
+test(5.7, names(bed), setdiff(names(bed_ans), "name"))
+
+bam <- read_format("sample.bam", tidy=FALSE)
+tidy(bam, remove_cols="MD") # tidy, but don't remove attributes col
+test(5.8, names(bam), setdiff(names(bam_ans), "MD"))
+# also test warning when the column to remove is not present
+test(5.9, tidy(bam, remove_cols="XYZ"), bam, warning="Skipping column")
+
+## as_granges ------------------------------------------------
+gff = read_format("sample.gff")
+gtf = read_format("sample.gtf")
+bed = read_format("sample.bed")
+bam = read_format("sample.bam")
+test(6.1, as_granges(gff), as(as.data.frame(gff), "GRanges"))
+test(6.2, as_granges(gtf), as(as.data.frame(gtf), "GRanges"))
+test(6.3, as_granges(bed), as(as.data.frame(bed), "GRanges"))
+test(6.4, as_granges(bam), as(as.data.frame(bam), "GRanges"))
+
+test(6.5, as_granges(gff, ignore_strand=TRUE), 
+          as(as.data.frame(copy(gff)[, strand:=NULL]), "GRanges"))
+test(6.6, as_granges(gtf, ignore_strand=TRUE), 
+          as(as.data.frame(copy(gtf)[, strand:=NULL]), "GRanges"))
+test(6.7, as_granges(bed, ignore_strand=TRUE), 
+          as(as.data.frame(copy(bed)[, strand:=NULL]), "GRanges"))
+test(6.8, as_granges(bam, ignore_strand=TRUE), 
+          as(as.data.frame(copy(bam)[, strand:=NULL]), "GRanges"))
+test(6.9, as_granges(1:2), error = "is not TRUE")
+
+## as_txdb -----------------------------------------------
+## No tests yet
+
+## strictly_nonunique ------------------------------------
+dt = data.table(x=c(2L, 1L, 2L, 2L, 1L, 2L, 2L),
+                y=c(2L, 2L, 2L, 1L, 1L, 1L, 1L))
+test(7.1, strictly_nonunique(dt), dt[!c(2L,5L)])
+
+## find_overlaps ------------------------------------
+bam = read_format("sample.bam")
+bed = read_format("sample.bed")[c(1,1,2,3)]
+internal_fun <- function(x, y) {
+    ans = GenomicRanges::findOverlaps(as(as.data.frame(x), "GRanges"), 
+                                  as(as.data.frame(y), "GRanges"))
+    setDT(list(queryHits=queryHits(ans), subjectHits=subjectHits(ans)))
+}
+test(8.1, find_overlaps(bam, bed), internal_fun(bam, bed))
+test(8.2, find_overlaps(bed, bed), internal_fun(bed, bed))
+test(8.3, find_overlaps(bed, bed, ignore_redundant=TRUE), 
+          internal_fun(bed, bed)[-3L])
+# TODO: test for ignore_strand. Not done now since it is just passed as 
+# arg to GenomicRanges::findOverlaps. To revisit when DT's non-equi joins 
+# will be ready.
+
+## reduce_overlaps ------------------------------------
+gff = read_format("sample.gff")
+gff1 = gff[2L]
+gff2 = gff[2L][, `:=`(start = 27221000L, end = 27223735L)]
+gff = rbind(gff1, gff2)
+setattr(gff, 'class', c("gff", "data.table", "data.frame"))
+ans = data.table(seqname = "7", start = 27221000L, end = 27224835L, 
+        length = 3836L, strand = "-", Parent = "ENSG00000005073")
+setattr(ans, 'class', class(gff))
+test(9.1, reduce_overlaps(gff, "Parent"), ans)
+test(9.2, reduce_overlaps(gff, "Par"), error="")
+
+## disjoin_overlaps ------------------------------------
+gff = read_format("sample.gff")
+gff1 = gff[2L]
+gff2 = gff[2L][, `:=`(start = 27221000L, end = 27223735L)]
+gff = rbind(gff1, gff2)
+setattr(gff, 'class', c("gff", "data.table", "data.frame"))
+ans = data.table(seqname = "7", start = c(27221000L, 27221134L, 27223736L), 
+        end = c(27221133L, 27223735L, 27224835L), 
+        length = c(134L, 2602L, 1100L), strand = "-", 
+        Parent = "ENSG00000005073")
+setattr(ans, 'class', class(gff))
+test(10.1, disjoin_overlaps(gff, "Parent"), ans)
+test(10.2, disjoin_overlaps(gff, "Par"), error="")
+
+## intersect_overlaps ------------------------------------
+gff = read_format("sample.gff")
+gff1 = gff[2L]
+gff2 = gff[2L][, `:=`(start = 27221000L, end = 27224235)]
+gff3 = gff[2L][, `:=`(start = 27523634L, end = 27524761L)]
+gff = rbind(gff1, gff2, gff3)
+setattr(gff, 'class', c("gff", "data.table", "data.frame"))
+ans = data.table(seqname = "7", start = c(27221000L, 27523634L), 
+        end = c(27224835L, 27524761L), length = c(3836L ,1128L), 
+        strand = "-", Parent = "ENSG00000005073")
+setattr(ans, 'class', class(gff))
+test(11.1, intersect_overlaps(gff, "Parent"), ans)
+test(11.2, intersect_overlaps(gff, "Par"), error="")
+
+## shallow ------------------------------------
+dt = data.table(x=1, y=2, z="a")
+test(12.1, shallow(data.frame()), error="")
+test(12.2, shallow(dt), dt)
+test(12.3, shallow(dt, "x"), dt[, .(x)])
+test(12.4, shallow(dt, "x"), dt[, .(x)])
+test(12.5, shallow(dt, "xx"), error="")
+
+## construct_introns -----------------------------------------
+gtf = read_format("sample.gtf")
+ans = data.table(seqname = "7", source = "protein_coding", feature = "intron", 
+        start = 27222648L, end = 27224054L, score = NA_real_, strand = "-", 
+        frame = NA_integer_, gene_id = "ENSG00000005073", 
+        transcript_id = "ENST00000006015", exon_number = NA, 
+        gene_biotype = "protein_coding", gene_name = "HOXA11", 
+        p_id = "P4212", transcript_name = "HOXA11-001", tss_id = "TSS161914", 
+        protein_id = NA_character_)
+setattr(ans, 'class', c("gtf", class(ans)))
+ans2 = copy(ans)
+setattr(ans2, 'class', c("intron", class(ans2)))
+test(13.1, construct_introns(gtf, update=FALSE), ans2)
+ans = rbind(gtf, ans)[order(seqname,start,end)]
+setattr(ans, 'class', c("gtf", class(ans)))
+test(13.2, construct_introns(gtf), ans)
+
+## extract features ------------------------------------------
+gtf = read_format("sample.gtf")
+ans = gtf[feature=="exon", .(seqname, start, end, length=end-start+1L, 
+            strand, transcript_id, gene_id)]
+setattr(ans, 'class', c("exon", class(gtf)))
+test(14.1, extract(gtf, feature="exon", type="union"), ans)
+ans[, overlaps := gene_id]
+setattr(ans, 'class', c("gene", class(gtf)))
+test(14.2, extract(gtf, feature="gene_exon", type="union"), ans)
+ans = data.table(seqname = "7", start = 27221134L, end = 27224835L, 
+        length = 3702L, strand = "-", transcript_id = "ENST00000006015", 
+        gene_id = "ENSG00000005073", overlaps = "ENSG00000005073")
+setattr(ans, 'class', c("gene", class(gtf)))
+test(14.3, extract(gtf, feature="gene", type="union"), ans)
+# test for feature="intron" on gtf object to check that introns are 
+# constructed automatically using construct_introns() with a warning
+ans = data.table(seqname="7", start=27222648L, end=27224054L, length=1407L, 
+            strand="-", transcript_id="ENST00000006015", 
+            gene_id="ENSG00000005073")
+setattr(ans, 'class', c("intron", "gtf", class(ans)))
+test(14.4, extract(gtf, "intron", "union"), ans, 
+    warning="No introns found in input")
+
+## non_overlaps ----------------------------------------------
+gtf  = read_format("sample.gtf")
+gtf2 = construct_introns(gtf)
+e = gtf2[feature=="exon", .(seqname,start,end,strand,transcript_id,gene_id)]
+i = gtf2[feature=="intron", .(seqname,start,end,strand,transcript_id,gene_id)]
+e[, transcript_id := as.list(transcript_id)]
+i[, transcript_id := as.list(transcript_id)]
+setorder(e, seqname,start,end)
+setorder(i, seqname,start,end)
+test(15.1, non_overlaps(gtf), list(non_overlapping_exon=e, 
+                                   non_overlapping_intron=i))
+
+## test summary ----------------------------------------------
+options(warn=0L)
+plat = paste("endian=",.Platform$endian,", sizeof(long double)==",
+                    .Machine$sizeof.longdouble,sep="")
+if (nfail > 0) {
+    if (nfail>1) {s1="s";s2="s: "} else {s1="";s2=" "}
+    cat("\r")
+    stop(nfail," error",s1," out of ",ntest, " (lastID=",
+        lastnum,", ",plat, ") in inst/tests/tests.Rraw on ",
+        date(),". Search tests.Rraw for test number",s2,
+        paste(whichfail,collapse=", "),".")
+    # important to stop() here, so that 'R CMD check' fails
+}
+cat("\rAll ",ntest," tests (lastID=",lastnum,
+    ") in inst/tests/tests.Rraw completed ok in ",
+    timetaken(started.at)," on ",
+    date()," (",plat,")\n",sep="")

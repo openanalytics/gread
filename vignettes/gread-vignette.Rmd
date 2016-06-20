@@ -1,0 +1,203 @@
+---
+title: "gread vignette"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    theme: spacelab
+    highlight: pygments
+    css : css/bootstrap.css
+vignette: >
+  %\VignetteIndexEntry{gread vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE, message = FALSE}
+require(gread)
+knitr::opts_chunk$set(
+  comment = "#",
+  error = FALSE,
+  tidy = FALSE,
+  cache = FALSE,
+  collapse=TRUE)
+# options(datatable.auto.index=FALSE)
+```
+
+We've developed three packages for performing differential analysis of NGS 
+data, namely `gread`, `gcount` and `ganalyse`. In short,
+
+* *gread* enables loading or reading in the required data quickly from many 
+different formats in which NGS data and gene annotations are available. 
+
+* *gcount* counts the reads depending on user configuration on *raw* counts.
+
+* *ganalyse* then allows to perform differential gene expression analysis 
+using many methods such as *limma*, *voomlimma* (for `FPKM`), *edger* on the 
+read counts.
+
+In this vignette, we'll discuss the `gread` package.
+
+***
+
+## gread package
+
+`gread` is an R-package that allows to read and process gene annotations and 
+NGS data. Currently supported formats include:
+
+* Gene Feature Format or `GFF`,
+* Gene Transfer Format or `GTF` (also referred to as `GFF v2.5` at times),
+* Browser Extensible Data or `BED` format, and
+* Binary sequence Alignment/Map Format or `BAM` format
+
+You can use the function `supported_formats()` to check all available formats. 
+
+```{r}
+supported_formats()
+```
+
+## Reading files quickly
+
+There are four functions, one for each type of format. 
+
+### `read_gtf`
+
+```{r}
+(gtf = read_gtf("sample.gtf"))
+class(gtf)
+```
+
+### `read_gff`
+
+```{r}
+(gff = read_gff("sample.gff"))
+class(gff)
+```
+
+### `read_bed`
+
+```{r}
+(bed = read_bed("sample.bed")) ## bed9, bed12 and bed15 formats
+class(bed)
+```
+
+### `read_bam`
+
+```{r}
+(bam = read_bam("sample.bam"))
+class(bam)
+```
+
+#### {.bs-callout .bs-callout-info}
+
+* All functions have a set of common arguments, and might contain additional 
+arguments specific to that particular format. See `?<function_name>` for more 
+details.
+
+* By default, the argument `tidy` is `TRUE`. This argument prepares the data 
+in a format that's *ready-to-use*. For example, `read_gff` and `read_gtf` 
+tidies the *attributes* column to separate columns with meaningful names.
+
+* You can filter invalid rows by using the `filter` argument. Default value 
+is `FALSE`, i.e., load *all* rows.
+
+* There are some additional arguments for `read_bam` function to load extra 
+tags. If you are not familiar with it, it's better to leave this argument 
+untouched.
+
+* All these functions are objects of class `gtf`, `gff` `bed` and `bam` 
+respectively. They inherit from `data.table`.
+
+### `read_format`
+
+While these functions are quite easy and straightforward to use, there's 
+another function `read_format()` that makes things even simpler and is 
+sufficient in most cases.
+
+```{r}
+# gtf file
+(gtf = read_format("sample.gtf"))
+
+# gff file
+(gff = read_format("sample.gff"))
+
+# bam file
+(bam = read_format("sample.bam"))
+
+# bed file
+(bed = read_format("sample.bed"))
+```
+
+#### {.bs-callout .bs-callout-info}
+
+* The function recognises the file format automatically with proper defaults. 
+So for most cases with default scenarios, this is quite useful.
+
+## The `tidy()` function
+
+In case the default tidying removes columns that you'd like to retain, you 
+can set `tidy=FALSE` first while loading the files using the function(s) 
+shown above, and then use the function `tidy()` to remove just the columns you 
+don't need using the `remove_cols` argument.
+
+```{r}
+(gtf = read_format("sample.gtf", tidy=FALSE))
+
+## each column of attributes will become a column while tidying up
+## retain all attributes except transcript_id and attributes
+tidy(gtf, remove_cols = c("tss_id", "attributes"))[]
+```
+
+The input object `gtf` is updated *by reference*. There is therefore no need 
+to assign the result back to a variable.
+
+### Extracting various features
+
+The `gread()` package provides an useful function `extract()` to extract 
+useful features from `gtf` and `gff` objects. This vignette provides a short 
+description of the function. See `?extract` for more.
+
+In a typical `RNA-seq` experiment, we would want to extract the *genes* 
+`start-end` coordinates and also just the *exons*. This is because, the 
+default methodology is to extract the *reads* that overlap *exons* and count 
+the total number of reads that overlap only those *exonic* regions for that 
+*gene*. Extracting *genes* and *exons* into separate *data.tables* makes 
+things easier to obtain counts then using the `gcount` package.
+
+```{r}
+gtf = read_format("sample.gtf")
+## Extract a unified gene model by combining all overlapping exons
+(uni_genes = extract(gtf, feature="gene_exon", type="union", 
+                 transcript_id="transcript_id", gene_id="gene_id"))
+## extract genes as such
+(genes = extract(gtf, feature="gene", type="default"))
+```
+
+## Other useful functionalities
+
+### Construct intron coordinates
+
+Sometimes the gene annotation formats do not have *intronic* coordintes 
+annotated but might be essential. In that case, we can use the 
+`construct_introns` function on a `gtf` or `gff` object a follows:
+
+```{r}
+gtf = read_format("sample.gtf")
+(gtf = construct_introns(gtf, update=TRUE))
+(introns = construct_introns(gtf, update=FALSE))
+
+class(gtf)
+class(introns)
+```
+
+#### Note that: {.bs-callout .bs-callout-info}
+
+* By default, the argument `update` is equal to `TRUE`, which returns an 
+updated `gtf` object with the *intron* coordinates added to `gtf` object. 
+The class of the input object is retained in result.
+
+* If you require just the introns, set `update = FALSE`.
+
+#
+
+***
+

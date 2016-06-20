@@ -1,0 +1,37 @@
+Package: gread
+Type: Package
+Title: Fast Reading and Processing of Common Gene Annotation and Next 
+        Generation Sequencing Format Files
+Version: 0.99.0
+Authors@R: c(
+    person("Arunkumar", "Srinivasan", , "asrinivasan@openanalytics.eu", 
+    c("aut", "cre")), person("Open Analytics", role = "cph"))
+Maintainer: Arunkumar Srinivasan <asrinivasan@openanalytics.eu>
+Depends:
+    R (>= 3.3)
+Imports:
+    stats,
+    utils,
+    methods,
+    tools,
+    data.table (>= 1.9.6),
+    stringi,
+    S4Vectors,
+    Rsamtools,
+    rtracklayer,
+    IRanges,
+    GenomicRanges,
+    GenomicFeatures,
+    GenomicAlignments
+Suggests:
+    knitr
+Description: It allows for fast reading and processing of genome read and
+    annotation files such as GTF/GFF/BED/BAM. In addition, it also provides
+    functions for advanced manipulations such as filling missing intron 
+    coordinates, extracting non-overlapping intron coordinates, extracting 
+    overlapping genes etc.
+License: GPL-3
+LazyData: true
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
+biocViews: Annotation, DataImport, Sequencing, RNASeq, Software
