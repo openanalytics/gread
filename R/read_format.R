@@ -1,4 +1,4 @@
-#' @title Quickly and easily read GTF/GFF/BED/BAM files
+#' @title Quickly and easily read gtf/gff/bed/bam files
 #'
 #' @description \code{read_gtf}, \code{read_gff}, \code{read_bed} and 
 #' \code{read_bam} are specific functions corresponding to respective file 
@@ -7,20 +7,20 @@
 #' \code{read_format} is a top-level convenience function that detects and 
 #' reads automatically from the extension and is sufficient in most cases.
 #'
-#' @details Note that \code{GFF1} uses \code{group} instead of 
+#' @details Note that \code{gff1} uses \code{group} instead of 
 #' \code{attributes} as the column name, but \code{gread} always names it 
 #' as \code{attributes}. Similarly the first three columns of \code{bed} 
 #' format are named \code{seqname, start, end} instead of \code{chrom, 
 #' chromStart, chromEnd} for consistency.
 #' 
 #' The argument \code{tidy} (\code{TRUE} by default) tidies up the 
-#' \code{attributes} column in case of \code{GTF/GFF} format files. The 
+#' \code{attributes} column in case of \code{gtf/gff} format files. The 
 #' \code{attributes} column itself is removed since it is tidied up into 
 #' multiple columns. If this is not desirable, use \code{tidy = FALSE} to 
 #' load the file \emph{as-is} and then use the \code{tidy} function with 
 #' \code{remove_cols = NULL}.
 #' 
-#' In case of \code{GFF} format, when `tidy=TRUE`, generation of columns 
+#' In case of \code{gff} format, when `tidy=TRUE`, generation of columns 
 #' \code{"transcript_id"} and \code{"gene_id"} will be attempted as these 
 #' columns are essential in most cases for downstream analyses. If possible, 
 #' the columns \code{"transcript_name"} and \code{"gene_name"} will also be 
@@ -28,7 +28,7 @@
 #' 
 #' @param file Complete path to the input file.
 #' @param format Type of annotation. Currently allowed values are 
-#' \code{"GTF"}, \code{"GFF"}, \code{"BED"} and \code{"BAM"}. If no input is 
+#' \code{"gtf"}, \code{"gff"}, \code{"bed"} and \code{"bam"}. If no input is 
 #' provided, then it will be guessed from input file's extension.
 #' @param filter Filter rows where \code{start/stop} are invalid, and where 
 #' \code{start > end}. Default is \code{FALSE} (not to filter, but retain all 
@@ -57,13 +57,13 @@
 #' bed_file <- file.path(path, "sample.bed")
 #' bam_file <- file.path(path, "sample.bam")
 #' 
-#' read_format(gff_file) # read GFF
+#' read_format(gff_file) # read gff
 #' read_gff(gff_file)    # same as above
-#' read_format(gtf_file) # read GTF
+#' read_format(gtf_file) # read gtf
 #' read_gtf(gtf_file)    # same as above
-#' read_format(bed_file) # read BED
+#' read_format(bed_file) # read bed
 #' read_bed(bed_file)    # same as above
-#' read_format(bam_file) # read BAM
+#' read_format(bam_file) # read bam
 #' read_bam(bam_file)    # same as above
 #' 
 #' read_format(gtf_file, tidy=FALSE) # load as is, don't tidy
@@ -126,7 +126,7 @@ detect_format <- function(file) {
 
     type = substr(tolower(tools::file_ext(file)), 1L, 3L)
     if (!type %in% c("gtf", "gff", "bam", "bed"))
-        stop("File does not have GTF/GFF/BED/BAM extension.")
+        stop("File does not have gtf/gff/bed/bam extension.")
     type
 }
 
@@ -182,7 +182,7 @@ gread.default <- function(token) {
 gread.gtf_format <- function(token) {
     # to please R CMD CHECK
     score=phase=NULL
-    # rtracklayer::readGFF reads GFF v1 'attributes' column as 'group',
+    # rtracklayer::readGFF reads gff v1 'attributes' column as 'group',
     # but we want it to be always 'attributes'. Also, it tidies up the 
     # attributes column by default
     rtracklayer_fun <- function() {
@@ -205,7 +205,7 @@ gread.gtf_format <- function(token) {
         token$types, quote = "")
     ans = tryCatch(rtracklayer_fun(), error = function(o) { 
                 if (token$verbose) cat("rtracklayer::readGFF failed to read", 
-                    " the GTF file. Reverting to data.table::fread.\n", sep="")
+                    " the gtf file. Reverting to data.table::fread.\n", sep="")
                 tryCatch(fread_fun(), error = function(o) {
                     if (token$verbose) cat("data.table::fread failed to read", 
                         " as well. Reverting to base::read.table.\n", sep="")
@@ -223,7 +223,7 @@ gread.gtf_format <- function(token) {
 gread.gff_format <- function(token) {
     # to please R CMD CHECK
     score=phase=NULL
-    # rtracklayer::readGFF reads GFF v1 'attributes' column as 'group',
+    # rtracklayer::readGFF reads gff v1 'attributes' column as 'group',
     # but we want it to be always 'attributes'. Also, it tidies up the 
     # attributes column by default
     rtracklayer_fun <- function() {
@@ -247,7 +247,7 @@ gread.gff_format <- function(token) {
         token$types, quote = "")
     ans = tryCatch(rtracklayer_fun(), error = function(o) { 
                 if (token$verbose) cat("rtracklayer::readGFF failed to read",
-                    " the GTF file. Reverting to data.table::fread.\n", sep="")
+                    " the gtf file. Reverting to data.table::fread.\n", sep="")
                 tryCatch(fread_fun(), error = function(o) {
                     if (token$verbose) cat("data.table::fread failed to read", 
                         " as well. Reverting to base::read.table.\n", sep="")

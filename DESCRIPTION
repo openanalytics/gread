@@ -26,7 +26,7 @@ Imports:
 Suggests:
     knitr
 Description: It allows for fast reading and processing of genome read and
-    annotation files such as GTF/GFF/BED/BAM. In addition, it also provides
+    annotation files such as gtf/gff/bed/bam. In addition, it also provides
     functions for advanced manipulations such as filling missing intron 
     coordinates, extracting non-overlapping intron coordinates, extracting 
     overlapping genes etc.

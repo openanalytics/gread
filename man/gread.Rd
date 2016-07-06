@@ -12,12 +12,12 @@ gene annotation and next generation sequencing file formats easily. It
 currently supports:
 
 \itemize{
- \item Gene Feature Format or \code{GFF} using \code{rtracklayer} package,
- \item Gene Transfer Format or \code{GTF} (also referred to as 
-    \code{GFF 2.5 at times}) using \code{rtracklayer} package,
- \item Browser Extensible Data or \code{BED} format using the 
+ \item Gene Feature Format or \code{gff} using \code{rtracklayer} package,
+ \item Gene Transfer Format or \code{gtf} (also referred to as 
+    \code{gff 2.5 at times}) using \code{rtracklayer} package,
+ \item Browser Extensible Data or \code{bed} format using the 
     \code{data.table} package.
- \item Binary sequence Alignment/Map Format or \code{BAM} format using 
+ \item Binary sequence Alignment/Map Format or \code{bam} format using 
     \code{GenomicAlignments} package.
 }
 
@@ -25,7 +25,7 @@ In addition, it also provides additional utility functions such as:
 
 \itemize{
  \item Filling missing intron coordinates - \code{construct_introns}, 
- \item Extracting particular features from GFF/GTF files - \code{extract}, 
+ \item Extracting particular features from gff/gtf files - \code{extract}, 
  \item Extract non-overlapping features (e.g., \code{genes}, 
     \code{introns}) etc. - \code{non_overlaps}
 }

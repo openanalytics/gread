@@ -1,4 +1,4 @@
-#' @title Tidy up GTF/GFF/BED/BAM objects
+#' @title Tidy up gtf/gff/bed/bam objects
 #'
 #' @description Tidy up data depending on the type of input format. 
 #'
@@ -6,15 +6,15 @@
 #' unnecessary copies, for efficiency. Therefore there is no need to assign 
 #' the result back to a variable. 
 #'
-#' @details In case of \code{GTF} and \code{GFF} formats, the 
+#' @details In case of \code{gtf} and \code{gff} formats, the 
 #' \code{attributes} column is extracted into separate columns after which 
 #' it is removed (by default). Set \code{remove_cols} to \code{NULL} if you 
 #' would like to retain the column even after tidying up.
 #' 
-#' In case of \code{BED} and \code{BAM} files, no columns are removed by 
+#' In case of \code{bed} and \code{bam} files, no columns are removed by 
 #' default. However, you can use \code{remove_cols} argument if necessary.
 #' 
-#' In case of \code{BAM} files, the function \code{GAlignments} from the 
+#' In case of \code{bam} files, the function \code{GAlignments} from the 
 #' \code{GenomicAlignments} Bioconductor package is used to read in the 
 #' file, with the additional arguments for \code{ScanBamParam()} function 
 #' using \code{NM} and \code{MD} tags by default.
@@ -22,15 +22,15 @@
 #' @seealso \code{\link{supported_formats}} \code{\link{read_format}} 
 #' \code{\link{extract}} \code{\link{construct_introns}} 
 #' \code{\link{as_granges}}
-#' @param x Input object, of class \code{GTF}, \code{GFF}, \code{BED} or 
-#' \code{BAM}.
+#' @param x Input object, of class \code{gtf}, \code{gff}, \code{bed} or 
+#' \code{bam}.
 #' @param remove_cols A character vector of column names to be removed.
 #' @param verbose Logical. Default is \code{FALSE}. If \code{TRUE}, helpful 
 #' status messages are printed on to the console. 
 #' @param ... Arguments that are ignored at the moment.
 #' @aliases tidy tidy.gtf tidy.gff tidy.bed tidy.bam
-#' @return A tidied object of class \code{GTF}, \code{GFF}, \code{BED} or 
-#' \code{BAM}, that inherits from \code{data.table}.
+#' @return A tidied object of class \code{gtf}, \code{gff}, \code{bed} or 
+#' \code{bam}, that inherits from \code{data.table}.
 #' @export
 #' @examples
 #' path <- system.file("tests", package="gread")
@@ -68,7 +68,7 @@ tidy.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     meta_fun <- function(vec, attr) {
         data.table::setattr(as.list(vec), 'names', attr)
     }
-    if (ncol(x) > 9L) { # rtracklayer::readGFF output, already tidied
+    if (ncol(x) > 9L) { # rtracklayer::readgff output, already tidied
         for (col in which(vapply(x, is.character, TRUE)))
             set(x, i=which(x[[col]] == ""), j=col, value=NA)
     } else if ("attributes" %in% names(x)) {
@@ -95,7 +95,7 @@ tidy.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     remove_cols(x, remove_cols, verbose) # updates by reference
     if (!all(c("transcript_id", "gene_id") %in% names(x)))
         warning("Columns 'transcript_id' and/or 'gene_id' are not found in ", 
-            "the GTF file or has been removed while tidying. Note that ", 
+            "the gtf file or has been removed while tidying. Note that ", 
             "these columns are essential for downstream analysis in ", 
             "most cases.")
     invisible(x)
@@ -108,7 +108,7 @@ tidy.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     meta_fun <- function(vec, attr) {
         data.table::setattr(as.list(vec), 'names', attr)
     }
-    if (ncol(x) > 9L) { # rtracklayer::readGFF output, already tidied
+    if (ncol(x) > 9L) { # rtracklayer::readgff output, already tidied
         for (col in which(vapply(x, is.character, TRUE)))
             set(x, i=which(x[[col]] == ""), j=col, value=NA)
     } else if ("attributes" %in% names(x)) {
@@ -178,10 +178,10 @@ gff_gene_transcript_cols <- function(x) {
     gene_id=transcript_id=NULL
     cols = c("ID", "Parent")
     if (any(check <- !cols %in% names(x))) {
-        warning("GFF file doesn't contain ", paste(cols[check], collapse=","), 
+        warning("gff file doesn't contain ", paste(cols[check], collapse=","), 
         "column(s) in its attributes column. They are necessary for ", 
         " creating 'transcript_id' and 'gene_id' columns which will be", 
-        " required for most downstream analysis. Please fix the GFF file.")
+        " required for most downstream analysis. Please fix the gff file.")
         cols = cols[!check]
         x[, c(cols) := lapply(.SD, function(x) gsub("^.*:", "", x)), 
                     .SDcols=cols]

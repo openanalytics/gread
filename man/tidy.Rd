@@ -7,7 +7,7 @@
 \alias{tidy.default}
 \alias{tidy.gff}
 \alias{tidy.gtf}
-\title{Tidy up GTF/GFF/BED/BAM objects}
+\title{Tidy up gtf/gff/bed/bam objects}
 \usage{
 tidy(x, ...)
 
@@ -22,8 +22,8 @@ tidy(x, ...)
 \method{tidy}{bam}(x, remove_cols = NULL, verbose = FALSE, ...)
 }
 \arguments{
-\item{x}{Input object, of class \code{GTF}, \code{GFF}, \code{BED} or 
-\code{BAM}.}
+\item{x}{Input object, of class \code{gtf}, \code{gff}, \code{bed} or 
+\code{bam}.}
 
 \item{...}{Arguments that are ignored at the moment.}
 
@@ -33,8 +33,8 @@ tidy(x, ...)
 status messages are printed on to the console.}
 }
 \value{
-A tidied object of class \code{GTF}, \code{GFF}, \code{BED} or 
-\code{BAM}, that inherits from \code{data.table}.
+A tidied object of class \code{gtf}, \code{gff}, \code{bed} or 
+\code{bam}, that inherits from \code{data.table}.
 }
 \description{
 Tidy up data depending on the type of input format. 
@@ -44,15 +44,15 @@ unnecessary copies, for efficiency. Therefore there is no need to assign
 the result back to a variable.
 }
 \details{
-In case of \code{GTF} and \code{GFF} formats, the 
+In case of \code{gtf} and \code{gff} formats, the 
 \code{attributes} column is extracted into separate columns after which 
 it is removed (by default). Set \code{remove_cols} to \code{NULL} if you 
 would like to retain the column even after tidying up.
 
-In case of \code{BED} and \code{BAM} files, no columns are removed by 
+In case of \code{bed} and \code{bam} files, no columns are removed by 
 default. However, you can use \code{remove_cols} argument if necessary.
 
-In case of \code{BAM} files, the function \code{GAlignments} from the 
+In case of \code{bam} files, the function \code{GAlignments} from the 
 \code{GenomicAlignments} Bioconductor package is used to read in the 
 file, with the additional arguments for \code{ScanBamParam()} function 
 using \code{NM} and \code{MD} tags by default.

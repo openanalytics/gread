@@ -6,7 +6,7 @@
 \alias{read_format}
 \alias{read_gff}
 \alias{read_gtf}
-\title{Quickly and easily read GTF/GFF/BED/BAM files}
+\title{Quickly and easily read gtf/gff/bed/bam files}
 \usage{
 read_format(file, format = detect_format(file), filter = FALSE,
   tidy = TRUE, chromosomes = NULL, tags = c("NM", "MD"),
@@ -25,7 +25,7 @@ read_bam(file, filter = FALSE, tidy = TRUE, chromosomes = NULL,
 \item{file}{Complete path to the input file.}
 
 \item{format}{Type of annotation. Currently allowed values are 
-\code{"GTF"}, \code{"GFF"}, \code{"BED"} and \code{"BAM"}. If no input is 
+\code{"gtf"}, \code{"gff"}, \code{"bed"} and \code{"bam"}. If no input is 
 provided, then it will be guessed from input file's extension.}
 
 \item{filter}{Filter rows where \code{start/stop} are invalid, and where 
@@ -59,20 +59,20 @@ formats.
 reads automatically from the extension and is sufficient in most cases.
 }
 \details{
-Note that \code{GFF1} uses \code{group} instead of 
+Note that \code{gff1} uses \code{group} instead of 
 \code{attributes} as the column name, but \code{gread} always names it 
 as \code{attributes}. Similarly the first three columns of \code{bed} 
 format are named \code{seqname, start, end} instead of \code{chrom, 
 chromStart, chromEnd} for consistency.
 
 The argument \code{tidy} (\code{TRUE} by default) tidies up the 
-\code{attributes} column in case of \code{GTF/GFF} format files. The 
+\code{attributes} column in case of \code{gtf/gff} format files. The 
 \code{attributes} column itself is removed since it is tidied up into 
 multiple columns. If this is not desirable, use \code{tidy = FALSE} to 
 load the file \emph{as-is} and then use the \code{tidy} function with 
 \code{remove_cols = NULL}.
 
-In case of \code{GFF} format, when `tidy=TRUE`, generation of columns 
+In case of \code{gff} format, when `tidy=TRUE`, generation of columns 
 \code{"transcript_id"} and \code{"gene_id"} will be attempted as these 
 columns are essential in most cases for downstream analyses. If possible, 
 the columns \code{"transcript_name"} and \code{"gene_name"} will also be 
@@ -85,13 +85,13 @@ gtf_file <- file.path(path, "sample.gtf")
 bed_file <- file.path(path, "sample.bed")
 bam_file <- file.path(path, "sample.bam")
 
-read_format(gff_file) # read GFF
+read_format(gff_file) # read gff
 read_gff(gff_file)    # same as above
-read_format(gtf_file) # read GTF
+read_format(gtf_file) # read gtf
 read_gtf(gtf_file)    # same as above
-read_format(bed_file) # read BED
+read_format(bed_file) # read bed
 read_bed(bed_file)    # same as above
-read_format(bam_file) # read BAM
+read_format(bam_file) # read bam
 read_bam(bam_file)    # same as above
 
 read_format(gtf_file, tidy=FALSE) # load as is, don't tidy

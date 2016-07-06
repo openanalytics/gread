@@ -44,10 +44,10 @@ In this vignette, we'll discuss the `gread` package.
 `gread` is an R-package that allows to read and process gene annotations and 
 NGS data. Currently supported formats include:
 
-* Gene Feature Format or `GFF`,
-* Gene Transfer Format or `GTF` (also referred to as `GFF v2.5` at times),
-* Browser Extensible Data or `BED` format, and
-* Binary sequence Alignment/Map Format or `BAM` format
+* Gene Feature Format or `gff`,
+* Gene Transfer Format or `gtf` (also referred to as `gff v2.5` at times),
+* Browser Extensible Data or `bed` format, and
+* Binary sequence alignment/map Format or `bam` format
 
 You can use the function `supported_formats()` to check all available formats. 
 

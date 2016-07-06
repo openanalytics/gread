@@ -3,7 +3,7 @@
 \name{extract}
 \alias{extract}
 \alias{extract_feature}
-\title{Extract features from \code{GTF}/\code{GFF} objects}
+\title{Extract features from gtf/gff objects}
 \usage{
 extract(x, feature = c("gene_exon", "gene", "gene_intron", "exon", "intron"),
   type = c("default", "union", "disjoin", "intersect", "longest", "shortest",

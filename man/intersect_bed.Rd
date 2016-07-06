@@ -2,19 +2,19 @@
 % Please edit documentation in R/intersect-bed.R
 \name{intersect_bed}
 \alias{intersect_bed}
-\title{Extract GTF coordinates intersecting input BED file}
+\title{Extract gtf coordinates intersecting input bed file}
 \usage{
 intersect_bed(gtf_file, bed_file, select_features)
 }
 \arguments{
-\item{gtf_file}{Full path to a \code{GTF} file.}
+\item{gtf_file}{Full path to a \code{gtf} file.}
 
-\item{bed_file}{Full path to a \code{BED} file. The file must contain at 
+\item{bed_file}{Full path to a \code{bed} file. The file must contain at 
 least three columns, with them corresponding to \code{seqname} (or 
 \code{chr}), \code{start} and \code{end}.}
 
 \item{select_features}{A 1-column \code{data.table} or a named list of 
-length=1. The name of the list indicates the column in the \code{GTF} file 
+length=1. The name of the list indicates the column in the \code{gtf} file 
 to filter on. The column/value should be a \emph{character} vector 
 containing the values to \emph{retain}.}
 }
@@ -23,9 +23,9 @@ A \code{gtf} object containing just those transcripts that overlap
 with the provided bed file.
 }
 \description{
-Given a \code{GTF} file, and a \code{BED} file, this function 
+Given a \code{gtf} file, and a \code{bed} file, this function 
 extracts all \emph{transcripts} that overlap with coordinates from 
-\code{BED} file and returns a \emph{filtered} \code{GTF} file. This 
+\code{bed} file and returns a \emph{filtered} \code{gtf} file. This 
 function is at the moment only for internal purposes.
 }
 \seealso{

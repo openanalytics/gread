@@ -9,7 +9,7 @@
 #' supported_formats()
 #' @export
 supported_formats <- function() {
-    c("GTF", "GFF", "BED", "BAM")
+    c("gtf", "gff", "bed", "bam")
 }
 
 error_format <- function() {

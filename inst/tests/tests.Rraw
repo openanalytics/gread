@@ -37,7 +37,7 @@ started.at = Sys.time()
 
 test(0.0, read_format("unavailable.unknown"), error="File does not")
 
-## GTF -----------------------------------------------
+## gtf -----------------------------------------------
 ff = c("exon", "stop_codon", "CDS", "start_codon")
 gtf_ans = data.table(
             seqname="7",
@@ -68,7 +68,7 @@ gtf_ans2 = gtf_ans[, 1:8, with=FALSE
              ][, attributes := fread("sample.gtf", select=9L)]
 test(1.5, read_gtf("sample.gtf", tidy=FALSE), gtf_ans2)
 
-## GFF -----------------------------------------------
+## gff -----------------------------------------------
 gff_ans = data.table(seqname="7",
                      source="protein_coding",
                      feature=c("gene","RNA","exon", "exon"),
@@ -105,9 +105,9 @@ test(2.5, read_gff("sample.gff", tidy=FALSE), gff_ans2)
 cols = c("seqname", "source", "feature", "start", "end", "score", 
         "strand", "phase", "Alias", "Name", "length", "Parent")
 test(2.6, read_gff("sample_no_id.gff"), gff_ans[, cols, with=FALSE], 
-            warning="GFF file")
+            warning="gff file")
 
-## BAM -----------------------------------------------
+## bam -----------------------------------------------
 bam_ans = data.table(seqname=c("1","5","X"),
                      start=c(220276091L,79733612L,12994378L),
                      end=c(220276834L,79733687L,12994453L),
@@ -131,7 +131,7 @@ test(3.6, nrow(read_format("sample_indexed.bam", chromosomes="Y")), 0L)
 test(3.7, read_bam("sample.bam", tags=NULL), 
                 bam_ans[, !c("NM", "MD"), with=FALSE])
 
-## BED -----------------------------------------------
+## bed -----------------------------------------------
 names = c("NS500200:12:H0RBKAGXX:3:11405:20307:5324", 
           "NS500200:10:H0PVJAGXX:3:21608:13122:16773", 
           "NS500200:10:H0PVJAGXX:2:13108:16527:7109")

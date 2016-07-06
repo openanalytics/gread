@@ -1,4 +1,4 @@
-#' @title Extract features from \code{GTF}/\code{GFF} objects
+#' @title Extract features from gtf/gff objects
 #'
 #' @description Provides functions for further post processing on objects of 
 #' class \code{gtf} and \code{gff}.
