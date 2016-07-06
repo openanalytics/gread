@@ -18,7 +18,8 @@
 #' \code{FALSE} it will return \code{TRUE} if all tests were successful. Error 
 #' otherwise.
 #' @aliases test_gread
-#' @seealso \code{\link{read_format}} \code{\link{extract}} \code{\link{tidy}}
+#' @seealso \code{\link{read_format}} \code{\link{extract}} 
+#' \code{\link{tidy_cols}}
 #' @examples
 #' \dontrun{
 #' gread:::test_gread()

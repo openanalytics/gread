@@ -16,6 +16,6 @@ Maintains a vector of all the formats supported currently.
 supported_formats()
 }
 \seealso{
-\code{\link{read_format}} \code{\link{tidy}}
+\code{\link{read_format}} \code{\link{tidy_cols}}
 }
 

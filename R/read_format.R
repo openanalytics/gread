@@ -13,14 +13,14 @@
 #' format are named \code{seqname, start, end} instead of \code{chrom, 
 #' chromStart, chromEnd} for consistency.
 #' 
-#' The argument \code{tidy} (\code{TRUE} by default) tidies up the 
+#' The argument \code{tidy_cols} (\code{TRUE} by default) tidies up the 
 #' \code{attributes} column in case of \code{gtf/gff} format files. The 
 #' \code{attributes} column itself is removed since it is tidied up into 
-#' multiple columns. If this is not desirable, use \code{tidy = FALSE} to 
-#' load the file \emph{as-is} and then use the \code{tidy} function with 
+#' multiple columns. If this is not desirable, use \code{tidy_cols = FALSE} to 
+#' load the file \emph{as-is} and then use the \code{tidy_cols} function with 
 #' \code{remove_cols = NULL}.
 #' 
-#' In case of \code{gff} format, when `tidy=TRUE`, generation of columns 
+#' In case of \code{gff} format, when `tidy_cols=TRUE`, generation of columns 
 #' \code{"transcript_id"} and \code{"gene_id"} will be attempted as these 
 #' columns are essential in most cases for downstream analyses. If possible, 
 #' the columns \code{"transcript_name"} and \code{"gene_name"} will also be 
@@ -33,7 +33,7 @@
 #' @param filter Filter rows where \code{start/stop} are invalid, and where 
 #' \code{start > end}. Default is \code{FALSE} (not to filter, but retain all 
 #' invalid rows).
-#' @param tidy If \code{TRUE} (default), returns only essential columns for 
+#' @param tidy_cols If \code{TRUE} (default), returns only essential columns for 
 #' further analysis (for e.g, \code{score}, \code{itemRgb} etc. are removed), 
 #' \code{attributes} column is cleaned up with separate columns for 
 #' \code{gene}, \code{transcript} id etc. Default is \code{TRUE}.
@@ -46,7 +46,7 @@
 #' @aliases read_format read_gtf read_gff read_bed read_bam
 #' @return An object of class \code{gtf}, \code{gff}, \code{bed} or \code{bam}, 
 #' corresponding to the input file format, that inherits from \code{data.table}.
-#' @seealso \code{\link{supported_formats}} \code{\link{tidy}} 
+#' @seealso \code{\link{supported_formats}} \code{\link{tidy_cols}} 
 #' \code{\link{extract}} \code{\link{construct_introns}}
 #' @keywords file
 #' @export
@@ -66,22 +66,23 @@
 #' read_format(bam_file) # read bam
 #' read_bam(bam_file)    # same as above
 #' 
-#' read_format(gtf_file, tidy=FALSE) # load as is, don't tidy
+#' read_format(gtf_file, tidy_cols=FALSE) # load as is, don't tidy
 #' 
 #' gtf_filter_file <- file.path(path, "sample_filter.gtf")
 #' read_format(gtf_filter_file, filter=TRUE) # filter invalid rows
 #' read_gtf(gtf_filter_file, filter=TRUE)    # same as above
 read_format <- function(file, format=detect_format(file), filter=FALSE, 
-            tidy=TRUE, chromosomes=NULL, tags=c("NM", "MD"),  verbose=FALSE) {
+            tidy_cols=TRUE, chromosomes=NULL, tags=c("NM", "MD"), 
+            verbose=FALSE) {
     
     if (!file.exists(file))
         stop(toupper(format), " file '", file, "' not found.")
     types = format_types(format=format)
     names = format_names(format=format)
-    token = tokenise(file, format, filter, tidy, chromosomes, tags, verbose, 
+    token = tokenise(file, format, filter, tidy_cols, chromosomes, tags, verbose, 
                         types=types, names=names)
     ans = gread(token)
-    if (tidy) tidy(ans, verbose=verbose)
+    if (tidy_cols) tidy_cols(ans, verbose=verbose)
     if (token$filter && !identical(format, "bam")) {
         before = nrow(ans)
         # TO DO: optimise this subset using internal any in data.table
@@ -97,27 +98,27 @@ read_format <- function(file, format=detect_format(file), filter=FALSE,
 
 #' @rdname read_format
 #' @export
-read_gtf <- function(file, filter=FALSE, tidy=TRUE, verbose=FALSE) {
-    read_format(file, "gtf", filter, tidy, verbose)
+read_gtf <- function(file, filter=FALSE, tidy_cols=TRUE, verbose=FALSE) {
+    read_format(file, "gtf", filter, tidy_cols, verbose)
 }
 
 #' @rdname read_format
 #' @export
-read_gff <- function(file, filter=FALSE, tidy=TRUE, verbose=FALSE) {
-    read_format(file, "gff", filter, tidy, verbose)
+read_gff <- function(file, filter=FALSE, tidy_cols=TRUE, verbose=FALSE) {
+    read_format(file, "gff", filter, tidy_cols, verbose)
 }
 
 #' @rdname read_format
 #' @export
-read_bed <- function(file, filter=FALSE, tidy=TRUE, verbose=FALSE) {
-    read_format(file, "bed", filter, tidy, verbose)
+read_bed <- function(file, filter=FALSE, tidy_cols=TRUE, verbose=FALSE) {
+    read_format(file, "bed", filter, tidy_cols, verbose)
 }
 
 #' @rdname read_format
 #' @export
-read_bam <- function(file, filter=FALSE, tidy=TRUE, chromosomes=NULL, 
+read_bam <- function(file, filter=FALSE, tidy_cols=TRUE, chromosomes=NULL, 
                         tags=c("NM", "MD"), verbose=FALSE) {
-    read_format(file, "bam", filter, tidy, chromosomes, tags, verbose)
+    read_format(file, "bam", filter, tidy_cols, chromosomes, tags, verbose)
 }
 
 # Helper/Internal functions for read_format ---------------------
@@ -130,12 +131,12 @@ detect_format <- function(file) {
     type
 }
 
-tokenise <- function(file, format, filter, tidy, chromosomes, 
+tokenise <- function(file, format, filter, tidy_cols, chromosomes, 
                        tags, verbose, ...) {
     arglist = as.list(match.call(expand.dots=TRUE))[-1L]
     argnames = setdiff(names(arglist), "format")
     if (!length(tags)) tags = character(0) # ScanBamParam needs this
-    tokens = structure(c(list(file, filter, tidy, chromosomes, tags, verbose), 
+    tokens = structure(c(list(file, filter, tidy_cols, chromosomes, tags, verbose), 
                 list(...)), class=paste(format, "format", sep="_"))
     data.table::setattr(tokens, 'names', argnames)
     tokens
@@ -188,7 +189,7 @@ gread.gtf_format <- function(token) {
     rtracklayer_fun <- function() {
         ans = setDT(rtracklayer::readGFF(token$file, version = 2L, 
                 columns = rtracklayer::GFFcolnames()))
-        if (!token$tidy) set(ans, j = tail(names(ans), -9L), value = NULL)
+        if (!token$tidy_cols) set(ans, j = tail(names(ans), -9L), value = NULL)
         ans[, (1:3) := lapply(.SD, as.character), .SDcols=1:3][]
         # remove additional attributes
         setattr(ans, 'pragmas', NULL)
@@ -229,7 +230,7 @@ gread.gff_format <- function(token) {
     rtracklayer_fun <- function() {
         ans = setDT(as.data.frame(rtracklayer::readGFF(token$file, columns = 
                 rtracklayer::GFFcolnames())))
-        if (!token$tidy) set(ans, j = tail(names(ans), -9L), value = NULL)
+        if (!token$tidy_cols) set(ans, j = tail(names(ans), -9L), value = NULL)
         ans[, (1:3) := lapply(.SD, as.character), .SDcols=1:3][]
         list_cols = which(vapply(ans, is.list, TRUE))
         if (length(list_cols)) {

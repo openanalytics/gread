@@ -9,16 +9,16 @@
 \title{Quickly and easily read gtf/gff/bed/bam files}
 \usage{
 read_format(file, format = detect_format(file), filter = FALSE,
-  tidy = TRUE, chromosomes = NULL, tags = c("NM", "MD"),
+  tidy_cols = TRUE, chromosomes = NULL, tags = c("NM", "MD"),
   verbose = FALSE)
 
-read_gtf(file, filter = FALSE, tidy = TRUE, verbose = FALSE)
+read_gtf(file, filter = FALSE, tidy_cols = TRUE, verbose = FALSE)
 
-read_gff(file, filter = FALSE, tidy = TRUE, verbose = FALSE)
+read_gff(file, filter = FALSE, tidy_cols = TRUE, verbose = FALSE)
 
-read_bed(file, filter = FALSE, tidy = TRUE, verbose = FALSE)
+read_bed(file, filter = FALSE, tidy_cols = TRUE, verbose = FALSE)
 
-read_bam(file, filter = FALSE, tidy = TRUE, chromosomes = NULL,
+read_bam(file, filter = FALSE, tidy_cols = TRUE, chromosomes = NULL,
   tags = c("NM", "MD"), verbose = FALSE)
 }
 \arguments{
@@ -32,7 +32,7 @@ provided, then it will be guessed from input file's extension.}
 \code{start > end}. Default is \code{FALSE} (not to filter, but retain all 
 invalid rows).}
 
-\item{tidy}{If \code{TRUE} (default), returns only essential columns for 
+\item{tidy_cols}{If \code{TRUE} (default), returns only essential columns for 
 further analysis (for e.g, \code{score}, \code{itemRgb} etc. are removed), 
 \code{attributes} column is cleaned up with separate columns for 
 \code{gene}, \code{transcript} id etc. Default is \code{TRUE}.}
@@ -65,14 +65,14 @@ as \code{attributes}. Similarly the first three columns of \code{bed}
 format are named \code{seqname, start, end} instead of \code{chrom, 
 chromStart, chromEnd} for consistency.
 
-The argument \code{tidy} (\code{TRUE} by default) tidies up the 
+The argument \code{tidy_cols} (\code{TRUE} by default) tidies up the 
 \code{attributes} column in case of \code{gtf/gff} format files. The 
 \code{attributes} column itself is removed since it is tidied up into 
-multiple columns. If this is not desirable, use \code{tidy = FALSE} to 
-load the file \emph{as-is} and then use the \code{tidy} function with 
+multiple columns. If this is not desirable, use \code{tidy_cols = FALSE} to 
+load the file \emph{as-is} and then use the \code{tidy_cols} function with 
 \code{remove_cols = NULL}.
 
-In case of \code{gff} format, when `tidy=TRUE`, generation of columns 
+In case of \code{gff} format, when `tidy_cols=TRUE`, generation of columns 
 \code{"transcript_id"} and \code{"gene_id"} will be attempted as these 
 columns are essential in most cases for downstream analyses. If possible, 
 the columns \code{"transcript_name"} and \code{"gene_name"} will also be 
@@ -94,14 +94,14 @@ read_bed(bed_file)    # same as above
 read_format(bam_file) # read bam
 read_bam(bam_file)    # same as above
 
-read_format(gtf_file, tidy=FALSE) # load as is, don't tidy
+read_format(gtf_file, tidy_cols=FALSE) # load as is, don't tidy
 
 gtf_filter_file <- file.path(path, "sample_filter.gtf")
 read_format(gtf_filter_file, filter=TRUE) # filter invalid rows
 read_gtf(gtf_filter_file, filter=TRUE)    # same as above
 }
 \seealso{
-\code{\link{supported_formats}} \code{\link{tidy}} 
+\code{\link{supported_formats}} \code{\link{tidy_cols}} 
 \code{\link{extract}} \code{\link{construct_introns}}
 }
 \keyword{file}

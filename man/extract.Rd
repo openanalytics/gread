@@ -84,7 +84,7 @@ exons <- extract(gtf, feature="gene_exon", type="union")
 genes <- extract(gtf, feature="gene", type="default")
 }
 \seealso{
-\code{\link{read_format}} \code{\link{tidy}} 
+\code{\link{read_format}} \code{\link{tidy_cols}} 
 \code{\link{as_granges}} \code{\link{extract}} 
 \code{\link{construct_introns}}
 }

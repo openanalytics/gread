@@ -38,6 +38,7 @@ gread:::test_gread()
 }
 }
 \seealso{
-\code{\link{read_format}} \code{\link{extract}} \code{\link{tidy}}
+\code{\link{read_format}} \code{\link{extract}} 
+\code{\link{tidy_cols}}
 }
 

@@ -66,7 +66,7 @@ test(1.3, read_format("sample_filter.gtf", filter=TRUE), gtf_ans[-4L])
 test(1.4, read_gtf("sample_filter.gtf", filter=TRUE), gtf_ans[-4L])
 gtf_ans2 = gtf_ans[, 1:8, with=FALSE
              ][, attributes := fread("sample.gtf", select=9L)]
-test(1.5, read_gtf("sample.gtf", tidy=FALSE), gtf_ans2)
+test(1.5, read_gtf("sample.gtf", tidy_cols=FALSE), gtf_ans2)
 
 ## gff -----------------------------------------------
 gff_ans = data.table(seqname="7",
@@ -101,7 +101,7 @@ test(2.4, setcolorder(read_gff("sample_filter.gff", filter=TRUE),
           names(gff_ans)), gff_ans[-4L])
 gff_ans2 = gff_ans[, 1:8, with=FALSE
              ][, attributes := fread("sample.gff", select=9L)]
-test(2.5, read_gff("sample.gff", tidy=FALSE), gff_ans2)
+test(2.5, read_gff("sample.gff", tidy_cols=FALSE), gff_ans2)
 cols = c("seqname", "source", "feature", "start", "end", "score", 
         "strand", "phase", "Alias", "Name", "length", "Parent")
 test(2.6, read_gff("sample_no_id.gff"), gff_ans[, cols, with=FALSE], 
@@ -152,38 +152,38 @@ setattr(bed_ans, 'class', c("bed", class(bed_ans)))
 test(4.0, read_format("unavailable.bed"), error="not found")
 test(4.1, read_format("sample.bed"), bed_ans)
 test(4.2, read_bed("sample.bed"), bed_ans)
-test(4.3, read_format("sample.bed", tidy=FALSE), bed_ans)
-test(4.4, read_bed("sample.bed", tidy=FALSE), bed_ans)
+test(4.3, read_format("sample.bed", tidy_cols=FALSE), bed_ans)
+test(4.4, read_bed("sample.bed", tidy_cols=FALSE), bed_ans)
 
-## tidy ------------------------------------------------------
+## tidy_cols ------------------------------------------------------
 
-gtf <- read_format("sample.gtf", tidy=FALSE)
+gtf <- read_format("sample.gtf", tidy_cols=FALSE)
 test(5.1, names(gtf), format_names("gtf"))
-tidy(gtf, remove_cols=NULL) # tidy, but don't remove attributes col
+tidy_cols(gtf, remove_cols=NULL) # tidy, but don't remove attributes col
 test(5.2, sort(names(gtf)), sort(c(format_names("gtf"), 
     tail(names(gtf_ans), -8L)))) # ignore order since rtracklayer returns 
                                  # columns in different order
-tidy(gtf, remove_cols="attributes")
+tidy_cols(gtf, remove_cols="attributes")
 test(5.3, sort(names(gtf)), sort(names(gtf_ans)))
 
-gff <- read_format("sample.gff", tidy=FALSE)
+gff <- read_format("sample.gff", tidy_cols=FALSE)
 test(5.4, names(gff), format_names("gff"))
-tidy(gff, remove_cols=NULL) # tidy, but don't remove attributes col
+tidy_cols(gff, remove_cols=NULL) # tidy, but don't remove attributes col
 test(5.5, sort(names(gff)), sort(c(format_names("gff"), 
     tail(names(gff_ans), -8L)))) # ignore order since rtracklayer returns 
                                  # columns in different order
-tidy(gff, remove_cols="attributes")
+tidy_cols(gff, remove_cols="attributes")
 test(5.6, sort(names(gff)), sort(names(gff_ans)))
 
-bed <- read_format("sample.bed", tidy=FALSE)
-tidy(bed, remove_cols="name") # tidy, but don't remove attributes col
+bed <- read_format("sample.bed", tidy_cols=FALSE)
+tidy_cols(bed, remove_cols="name") # tidy, but don't remove attributes col
 test(5.7, names(bed), setdiff(names(bed_ans), "name"))
 
-bam <- read_format("sample.bam", tidy=FALSE)
-tidy(bam, remove_cols="MD") # tidy, but don't remove attributes col
+bam <- read_format("sample.bam", tidy_cols=FALSE)
+tidy_cols(bam, remove_cols="MD") # tidy, but don't remove attributes col
 test(5.8, names(bam), setdiff(names(bam_ans), "MD"))
 # also test warning when the column to remove is not present
-test(5.9, tidy(bam, remove_cols="XYZ"), bam, warning="Skipping column")
+test(5.9, tidy_cols(bam, remove_cols="XYZ"), bam, warning="Skipping column")
 
 ## as_granges ------------------------------------------------
 gff = read_format("sample.gff")

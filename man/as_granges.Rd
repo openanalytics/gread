@@ -46,6 +46,6 @@ as_granges(bam, ignore_strand=FALSE)
 }
 \seealso{
 \code{\link{read_format}} 
-\code{\link{tidy}} \code{\link{extract}} \code{\link{construct_introns}}
+\code{\link{tidy_cols}} \code{\link{extract}} \code{\link{construct_introns}}
 }
 

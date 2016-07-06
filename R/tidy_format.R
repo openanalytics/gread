@@ -28,7 +28,7 @@
 #' @param verbose Logical. Default is \code{FALSE}. If \code{TRUE}, helpful 
 #' status messages are printed on to the console. 
 #' @param ... Arguments that are ignored at the moment.
-#' @aliases tidy tidy.gtf tidy.gff tidy.bed tidy.bam
+#' @aliases tidy_cols tidy_cols.gtf tidy_cols.gff tidy_cols.bed tidy_cols.bam
 #' @return A tidied object of class \code{gtf}, \code{gff}, \code{bed} or 
 #' \code{bam}, that inherits from \code{data.table}.
 #' @export
@@ -39,31 +39,31 @@
 #' bed_file <- file.path(path, "sample.bed")
 #' bam_file <- file.path(path, "sample.bam")
 #' 
-#' gtf <- read_format(gtf_file, tidy=FALSE)
-#' gff <- read_format(gtf_file, tidy=FALSE)
-#' bed <- read_format(bed_file, tidy=FALSE)
-#' bam <- read_format(bam_file, tidy=FALSE)
+#' gtf <- read_format(gtf_file, tidy_cols=FALSE)
+#' gff <- read_format(gtf_file, tidy_cols=FALSE)
+#' bed <- read_format(bed_file, tidy_cols=FALSE)
+#' bam <- read_format(bam_file, tidy_cols=FALSE)
 #' 
-#' tidy(gtf, remove_cols=NULL)[]          # tidy attributes col, but not remove
-#' tidy(gff, remove_cols=NULL)[]          # same as above, but for gff
-#' tidy(gtf, remove_cols="attributes")[]  # tidy *and* remove attributes col
-#' tidy(gff, remove_cols="attributes")[]  # same as above, but for gff
+#' tidy_cols(gtf, remove_cols=NULL)[]          # tidy attr. col, but not remove
+#' tidy_cols(gff, remove_cols=NULL)[]          # same as above, but for gff
+#' tidy_cols(gtf, remove_cols="attributes")[]  # tidy & remove attr. col
+#' tidy_cols(gff, remove_cols="attributes")[]  # same as above, but for gff
 #' 
-#' tidy(bed, remove_cols="name")[]        # remove name column
-#' tidy(bam, remove_cols=c("NM", "MD"))[] # remove additional loaded tags 
-tidy <- function(x, ...) {
-    UseMethod("tidy")
+#' tidy_cols(bed, remove_cols="name")[]        # remove name column
+#' tidy_cols(bam, remove_cols=c("NM", "MD"))[] # remove additional loaded tags 
+tidy_cols <- function(x, ...) {
+    UseMethod("tidy_cols")
 }
 
-#' @rdname tidy
+#' @rdname tidy_cols
 #' @export
-tidy.default <- function(x, ...) {
+tidy_cols.default <- function(x, ...) {
     stop("No default method available.")
 }
 
-#' @rdname tidy
+#' @rdname tidy_cols
 #' @export
-tidy.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
+tidy_cols.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     stopifnot(identical(head(names(x), 9L), format_names("gtf")))
     meta_fun <- function(vec, attr) {
         data.table::setattr(as.list(vec), 'names', attr)
@@ -101,9 +101,9 @@ tidy.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     invisible(x)
 }
 
-#' @rdname tidy
+#' @rdname tidy_cols
 #' @export
-tidy.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
+tidy_cols.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     stopifnot(identical(head(names(x), 9L), format_names("gff")))
     meta_fun <- function(vec, attr) {
         data.table::setattr(as.list(vec), 'names', attr)
@@ -137,22 +137,22 @@ tidy.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     invisible(x)
 }
 
-#' @rdname tidy
+#' @rdname tidy_cols
 #' @export
-tidy.bed <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
+tidy_cols.bed <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
     stopifnot(identical(names(x), head(format_names("bed"), length(x))))
     remove_cols(x, remove_cols, verbose) # updates by reference
     invisible(x)
 }
 
-#' @rdname tidy
+#' @rdname tidy_cols
 #' @export
-tidy.bam <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
+tidy_cols.bam <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
     remove_cols(x, remove_cols, verbose) # updates by reference
     invisible(x)
 }
 
-## internal function used in tidy methods -------------------
+## internal function used in tidy_cols methods -------------------
 
 remove_cols <- function(x, cols, verbose) {
     if (is.null(cols)) {

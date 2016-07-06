@@ -15,6 +15,7 @@
 #' containing the values to \emph{retain}.
 #' @seealso \code{\link{read_format}}, \code{\link{non_overlaps}}, 
 #' \code{\link{construct_introns}}, \code{\link{extract}}
+#' \code{\link{tidy_cols}}
 #' @return A \code{gtf} object containing just those transcripts that overlap 
 #' with the provided bed file.
 intersect_bed <- function(gtf_file, bed_file, select_features) {

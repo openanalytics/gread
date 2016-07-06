@@ -31,5 +31,6 @@ function is at the moment only for internal purposes.
 \seealso{
 \code{\link{read_format}}, \code{\link{non_overlaps}}, 
 \code{\link{construct_introns}}, \code{\link{extract}}
+\code{\link{tidy_cols}}
 }
 

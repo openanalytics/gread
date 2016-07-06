@@ -4,7 +4,7 @@
 #'
 #' @return A character vector listing all currently supported formats.
 #' @aliases supported_formats
-#' @seealso \code{\link{read_format}} \code{\link{tidy}}
+#' @seealso \code{\link{read_format}} \code{\link{tidy_cols}}
 #' @examples
 #' supported_formats()
 #' @export

@@ -21,7 +21,7 @@
 #' # same as above, but returns only constructed introns
 #' introns <- construct_introns(gtf, update=FALSE)
 #' @seealso \code{\link{supported_formats}} \code{\link{read_format}} 
-#' \code{\link{extract}} \code{\link{tidy}} \code{\link{as_granges}} 
+#' \code{\link{extract}} \code{\link{tidy_cols}} \code{\link{as_granges}} 
 construct_introns <- function(x, update=TRUE) {
     stopifnot(inherits(x, "gtf") || inherits(x, "gff"), 
                 "feature" %chin% names(x), 

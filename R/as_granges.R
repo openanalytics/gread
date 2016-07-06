@@ -36,7 +36,7 @@
 #' as_granges(bed, ignore_strand=FALSE)
 #' as_granges(bam, ignore_strand=FALSE)
 #' @seealso \code{\link{read_format}} 
-#' \code{\link{tidy}} \code{\link{extract}} \code{\link{construct_introns}}
+#' \code{\link{tidy_cols}} \code{\link{extract}} \code{\link{construct_introns}}
 as_granges <- function(x, ignore_strand=FALSE) {
 
     stopifnot(is.gtf(x)||is.gff(x)||is.bed(x)||is.bam(x)||is.data.table(x))
@@ -306,7 +306,7 @@ as_bam <- function(x) {
 # #' @return A \code{TxDb} object.
 # #' @aliases as_txdb
 # #' @seealso \code{\link{as_granges}} \code{\link{read_format}} 
-# #' \code{\link{tidy}} \code{\link{extract}}
+# #' \code{\link{tidy_cols}} \code{\link{extract}}
 # #' @export
 # #' @examples
 # #' path <- system.file("tests", package="gread")

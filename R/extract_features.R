@@ -52,7 +52,7 @@
 #' \code{"gene"}, \code{"gene_exon"} or \code{"gene_intron"}, and of class 
 #' \code{"exon"} and \code{"intron"} when \code{feature} is \code{"exon"} or 
 #' \code{"intron"} respectively.
-#' @seealso \code{\link{read_format}} \code{\link{tidy}} 
+#' @seealso \code{\link{read_format}} \code{\link{tidy_cols}} 
 #' \code{\link{as_granges}} \code{\link{extract}} 
 #' \code{\link{construct_introns}}
 #' @export
