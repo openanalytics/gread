@@ -18,9 +18,9 @@
 #' exons} and \emph{non overlapping introns}.
 #' @examples
 #' \dontrun{
-#' path = system.file("tests", package="gread")
-#' gtf_file = file.path(path, "sample.gtf")
-#' gtf = read_format(gtf_file)
+#' path <- system.file("tests", package="gread")
+#' gtf_file <- file.path(path, "sample.gtf")
+#' gtf <- read_format(gtf_file)
 #' non_overlaps(gtf)
 #' }
 non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){

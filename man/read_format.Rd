@@ -79,11 +79,11 @@ the columns \code{"transcript_name"} and \code{"gene_name"} will also be
 created.
 }
 \examples{
-path = system.file("tests", package="gread")
-gff_file = file.path(path, "sample.gff")
-gtf_file = file.path(path, "sample.gtf")
-bed_file = file.path(path, "sample.bed")
-bam_file = file.path(path, "sample.bam")
+path <- system.file("tests", package="gread")
+gff_file <- file.path(path, "sample.gff")
+gtf_file <- file.path(path, "sample.gtf")
+bed_file <- file.path(path, "sample.bed")
+bam_file <- file.path(path, "sample.bam")
 
 read_format(gff_file) # read GFF
 read_gff(gff_file)    # same as above
@@ -96,7 +96,7 @@ read_bam(bam_file)    # same as above
 
 read_format(gtf_file, tidy=FALSE) # load as is, don't tidy
 
-gtf_filter_file = file.path(path, "sample_filter.gtf")
+gtf_filter_file <- file.path(path, "sample_filter.gtf")
 read_format(gtf_filter_file, filter=TRUE) # filter invalid rows
 read_gtf(gtf_filter_file, filter=TRUE)    # same as above
 }

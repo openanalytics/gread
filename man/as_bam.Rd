@@ -20,15 +20,15 @@ For internal use only. Converts a \code{GAlignments} object to
 \dontrun{
 For internal use only
 library(GenomicAlignments)
-path = system.file("tests", package="gread")
-bam_file = file.path(path, "sample.bam")
+path <- system.file("tests", package="gread")
+bam_file <- file.path(path, "sample.bam")
 
 # with no metadata
-bam = GenomicAlignments::readGAlignments(bam_file)
+bam <- GenomicAlignments::readGAlignments(bam_file)
 gread:::as_bam(bam)
 
 # with some metadata
-bam = as(as_granges(read_format(bam_file)), "GAlignments")
+bam <- as(as_granges(read_format(bam_file)), "GAlignments")
 gread:::as_bam(bam)
 }
 }

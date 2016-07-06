@@ -22,7 +22,7 @@ those groups where the number of rows > 1L. This is equivalent to doing
 \examples{
 \dontrun{
 require(data.table)
-dt = data.table(x=c(1,1,1,2,2), y=c(3,3,4,5,6))
+dt <- data.table(x=c(1,1,1,2,2), y=c(3,3,4,5,6))
 strictly_nonunique(dt) # Only 1,3 occurs more than once
 strictly_nonunique(dt, "x") # all values occur more than once
 }

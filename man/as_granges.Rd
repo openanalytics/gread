@@ -23,16 +23,16 @@ or a valid \code{data.table} to a GRanges object, preserving all
 additional columns.
 }
 \examples{
-path = system.file("tests", package="gread")
-gff_file = file.path(path, "sample.gff")
-gtf_file = file.path(path, "sample.gtf")
-bed_file = file.path(path, "sample.bed")
-bam_file = file.path(path, "sample.bam")
+path <- system.file("tests", package="gread")
+gff_file <- file.path(path, "sample.gff")
+gtf_file <- file.path(path, "sample.gtf")
+bed_file <- file.path(path, "sample.bed")
+bam_file <- file.path(path, "sample.bam")
 
-gff = read_format(gff_file)
-gtf = read_format(gtf_file)
-bed = read_format(bed_file)
-bam = read_format(bam_file)
+gff <- read_format(gff_file)
+gtf <- read_format(gtf_file)
+bed <- read_format(bed_file)
+bam <- read_format(bam_file)
 
 as_granges(gff)
 as_granges(gtf)

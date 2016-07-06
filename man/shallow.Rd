@@ -23,10 +23,10 @@ internal use only.
 \dontrun{
 # For internal use only
 library(data.table)
-x = data.table(a=1:2, b=3:4)
+x <- data.table(a=1:2, b=3:4)
 setattr(x, 'class', c("tmp", class(x)))
 
-y = gread:::shallow(x) # only copies column pointers
+y <- gread:::shallow(x) # only copies column pointers
 class(y) # class(x) is retained
 }
 }

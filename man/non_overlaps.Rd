@@ -31,9 +31,9 @@ Note: This function is not exported at the moment.
 }
 \examples{
 \dontrun{
-path = system.file("tests", package="gread")
-gtf_file = file.path(path, "sample.gtf")
-gtf = read_format(gtf_file)
+path <- system.file("tests", package="gread")
+gtf_file <- file.path(path, "sample.gtf")
+gtf <- read_format(gtf_file)
 non_overlaps(gtf)
 }
 }

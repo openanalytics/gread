@@ -58,16 +58,16 @@ file, with the additional arguments for \code{ScanBamParam()} function
 using \code{NM} and \code{MD} tags by default.
 }
 \examples{
-path = system.file("tests", package="gread")
-gff_file = file.path(path, "sample.gff")
-gtf_file = file.path(path, "sample.gtf")
-bed_file = file.path(path, "sample.bed")
-bam_file = file.path(path, "sample.bam")
+path <- system.file("tests", package="gread")
+gff_file <- file.path(path, "sample.gff")
+gtf_file <- file.path(path, "sample.gtf")
+bed_file <- file.path(path, "sample.bed")
+bam_file <- file.path(path, "sample.bam")
 
-gtf = read_format(gtf_file, tidy=FALSE)
-gff = read_format(gtf_file, tidy=FALSE)
-bed = read_format(bed_file, tidy=FALSE)
-bam = read_format(bam_file, tidy=FALSE)
+gtf <- read_format(gtf_file, tidy=FALSE)
+gff <- read_format(gtf_file, tidy=FALSE)
+bed <- read_format(bed_file, tidy=FALSE)
+bam <- read_format(bam_file, tidy=FALSE)
 
 tidy(gtf, remove_cols=NULL)[]          # tidy attributes col, but not remove
 tidy(gff, remove_cols=NULL)[]          # same as above, but for gff

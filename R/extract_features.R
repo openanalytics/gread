@@ -57,15 +57,15 @@
 #' \code{\link{construct_introns}}
 #' @export
 #' @examples
-#' path = system.file("tests", package="gread")
-#' gtf_file = file.path(path, "sample.gtf")
-#' gtf = read_format(gtf_file)
+#' path <- system.file("tests", package="gread")
+#' gtf_file <- file.path(path, "sample.gtf")
+#' gtf <- read_format(gtf_file)
 #' # extract exons, combine coordinates of overlapping exons
-#' exons = extract(gtf, feature="exon", type="union")
+#' exons <- extract(gtf, feature="exon", type="union")
 #' # extract all exons within the gene, but combine overlapping exons
-#' exons = extract(gtf, feature="gene_exon", type="union")
+#' exons <- extract(gtf, feature="gene_exon", type="union")
 #' ## extract gene span (uses exon coordinates if feature='gene' doesn't exist)
-#' genes = extract(gtf, feature="gene", type="default")
+#' genes <- extract(gtf, feature="gene", type="default")
 extract <- function(x, feature=c("gene_exon", "gene", "gene_intron", "exon", 
     "intron"), type=c("default", "union", "disjoin", "intersect", "longest", 
     "shortest", "overlap"), ignore_strand=FALSE, 

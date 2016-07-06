@@ -15,16 +15,16 @@
 #' @export
 #' @aliases as_granges
 #' @examples
-#' path = system.file("tests", package="gread")
-#' gff_file = file.path(path, "sample.gff")
-#' gtf_file = file.path(path, "sample.gtf")
-#' bed_file = file.path(path, "sample.bed")
-#' bam_file = file.path(path, "sample.bam")
+#' path <- system.file("tests", package="gread")
+#' gff_file <- file.path(path, "sample.gff")
+#' gtf_file <- file.path(path, "sample.gtf")
+#' bed_file <- file.path(path, "sample.bed")
+#' bam_file <- file.path(path, "sample.bam")
 #' 
-#' gff = read_format(gff_file)
-#' gtf = read_format(gtf_file)
-#' bed = read_format(bed_file)
-#' bam = read_format(bam_file)
+#' gff <- read_format(gff_file)
+#' gtf <- read_format(gtf_file)
+#' bed <- read_format(bed_file)
+#' bam <- read_format(bam_file)
 #' 
 #' as_granges(gff)
 #' as_granges(gtf)
@@ -56,7 +56,7 @@ as_granges <- function(x, ignore_strand=FALSE) {
 #' @examples
 #' \dontrun{
 #' require(data.table)
-#' dt = data.table(x=c(1,1,1,2,2), y=c(3,3,4,5,6))
+#' dt <- data.table(x=c(1,1,1,2,2), y=c(3,3,4,5,6))
 #' strictly_nonunique(dt) # Only 1,3 occurs more than once
 #' strictly_nonunique(dt, "x") # all values occur more than once
 #' }
@@ -230,10 +230,10 @@ intersect_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
 #' \dontrun{
 #' # For internal use only
 #' library(data.table)
-#' x = data.table(a=1:2, b=3:4)
+#' x <- data.table(a=1:2, b=3:4)
 #' setattr(x, 'class', c("tmp", class(x)))
 #'
-#' y = gread:::shallow(x) # only copies column pointers
+#' y <- gread:::shallow(x) # only copies column pointers
 #' class(y) # class(x) is retained
 #' }
 shallow <- function(x, cols = names(x)) {
@@ -258,15 +258,15 @@ shallow <- function(x, cols = names(x)) {
 #' \dontrun{
 #' For internal use only
 #' library(GenomicAlignments)
-#' path = system.file("tests", package="gread")
-#' bam_file = file.path(path, "sample.bam")
+#' path <- system.file("tests", package="gread")
+#' bam_file <- file.path(path, "sample.bam")
 #' 
 #' # with no metadata
-#' bam = GenomicAlignments::readGAlignments(bam_file)
+#' bam <- GenomicAlignments::readGAlignments(bam_file)
 #' gread:::as_bam(bam)
 #' 
 #' # with some metadata
-#' bam = as(as_granges(read_format(bam_file)), "GAlignments")
+#' bam <- as(as_granges(read_format(bam_file)), "GAlignments")
 #' gread:::as_bam(bam)
 #' }
 as_bam <- function(x) {
@@ -309,12 +309,12 @@ as_bam <- function(x) {
 # #' \code{\link{tidy}} \code{\link{extract}}
 # #' @export
 # #' @examples
-# #' path = system.file("tests", package="gread")
-# #' gff_file = file.path(path, "sample.gff")
-# #' gtf_file = file.path(path, "sample.gtf")
+# #' path <- system.file("tests", package="gread")
+# #' gff_file <- file.path(path, "sample.gff")
+# #' gtf_file <- file.path(path, "sample.gtf")
 # #' 
-# #' gff = read_format(gff_file)
-# #' gtf = read_format(gtf_file)
+# #' gff <- read_format(gff_file)
+# #' gtf <- read_format(gtf_file)
 # #' 
 # #' as_txdb(gff)
 # #' as_txdb(gtf)
