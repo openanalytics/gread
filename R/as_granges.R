@@ -281,8 +281,8 @@ as_bam <- function(x) {
             width=width(x),
             njunc=njunc(x))
     setDT(ans)
-    if (ncol(elementMetadata(x))) {
-        mdata = as.data.table(elementMetadata(x))
+    if (ncol(mcols(x))) {
+        mdata = as.data.table(mcols(x))
         ans = ans[, names(mdata) := mdata]
     }
     setattr(ans, 'class', c("bam", "data.table", "data.frame"))

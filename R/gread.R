@@ -47,7 +47,7 @@
 #' @importFrom GenomicAlignments readGAlignments readGAlignmentPairs 
 #' @importFrom GenomicAlignments width njunc rname
 #' @importFrom S4Vectors queryHits subjectHits
-#' @importMethodsFrom S4Vectors Rle elementMetadata
+#' @importMethodsFrom S4Vectors Rle mcols
 #' @importFrom rtracklayer readGFF GFFcolnames
 #' @seealso \code{\link{read_format}} \code{\link{read_gff}} 
 #' \code{\link{read_gtf}} \code{\link{read_bed}} \code{\link{read_bam}} 
