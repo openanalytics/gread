@@ -4,7 +4,7 @@
 \alias{as_data_table}
 \title{Convert gtf/gff/bam/bed S4 objects to data.table and preserve class}
 \usage{
-as_data_table(x)
+as_data_table(x, reset_class = FALSE)
 }
 \value{
 A data.table object with input class preserved.

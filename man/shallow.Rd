@@ -4,7 +4,7 @@
 \alias{shallow}
 \title{shallow copy a \code{data.table}}
 \usage{
-shallow(x, cols = names(x))
+shallow(x, cols = names(x), reset_class = FALSE)
 }
 \arguments{
 \item{x}{A \code{data.table}.}

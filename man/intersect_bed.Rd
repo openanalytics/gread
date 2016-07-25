@@ -10,7 +10,7 @@ intersect_bed(gtf_file, bed_file, select_features)
 \item{gtf_file}{Full path to a \code{gtf} file.}
 
 \item{bed_file}{Full path to a \code{bed} file. The file must contain at 
-least three columns, with them corresponding to \code{seqname} (or 
+least three columns, with them corresponding to \code{seqnames} (or 
 \code{chr}), \code{start} and \code{end}.}
 
 \item{select_features}{A 1-column \code{data.table} or a named list of 
