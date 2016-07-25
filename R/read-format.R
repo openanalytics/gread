@@ -67,7 +67,7 @@ read_format <- function(file, format=detect_format(file), filter=FALSE,
                 " where start/end coordinates were NA/NaN and ", 
                 " where start > end.\n", sep="")
     }
-    # Returning 'GRanges' following Hervé's feedback
+    # Returning 'GRanges' following Herve's feedback
     # See https://github.com/Bioconductor/Contributions/issues/25
     new(class(ans)[1L], as(setDF(ans), "GRanges"))
 }
