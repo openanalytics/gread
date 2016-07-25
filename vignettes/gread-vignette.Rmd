@@ -93,10 +93,6 @@ class(bam)
 arguments specific to that particular format. See `?<function_name>` for more 
 details.
 
-* By default, the argument `tidy_cols` is `TRUE`. This argument prepares the data 
-in a format that's *ready-to-use*. For example, `read_gff` and `read_gtf` 
-tidies the *attributes* column to separate columns with meaningful names.
-
 * You can filter invalid rows by using the `filter` argument. Default value 
 is `FALSE`, i.e., load *all* rows.
 
