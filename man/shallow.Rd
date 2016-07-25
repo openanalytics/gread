@@ -10,6 +10,9 @@ shallow(x, cols = names(x), reset_class = FALSE)
 \item{x}{A \code{data.table}.}
 
 \item{cols}{Character vector of column names (from \code{x}).}
+
+\item{reset_class}{logical (default \code{FALSE}). If \code{TRUE}, resets 
+the class to \code{"data.table", "data.frame"}.}
 }
 \value{
 A shallow copied \code{data.table}.
