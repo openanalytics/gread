@@ -11,6 +11,7 @@
 #' @return A \code{GRanges} object.
 #' @aliases as_granges
 #' @examples
+#' \dontrun{
 #' path <- system.file("tests", package="gread")
 #' gff_file <- file.path(path, "sample.gff")
 #' gtf_file <- file.path(path, "sample.gtf")
@@ -31,6 +32,7 @@
 #' as_granges(gtf, ignore_strand=FALSE)
 #' as_granges(bed, ignore_strand=FALSE)
 #' as_granges(bam, ignore_strand=FALSE)
+#' }
 #' @seealso \code{\link{read_format}} \code{\link{extract}} 
 #' \code{\link{construct_introns}}
 as_granges <- function(x, ignore_strand=FALSE) {
