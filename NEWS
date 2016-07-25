@@ -16,9 +16,6 @@ object for further use with Bioconductor packages.
 5. Added `construct_introns` to fill gaps in gene annotation and fill missing 
 feature from `gtf/gff` objects.
 
-6. Exported `tidy` function in case user wants to do decide on which columns 
-to retain on tidying.
-
-7. Added vignette and tests.
+6. Added vignette and tests.
 
 ## Bug fixes
