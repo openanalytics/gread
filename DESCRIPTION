@@ -2,7 +2,7 @@ Package: gread
 Type: Package
 Title: Fast Reading and Processing of Common Gene Annotation and Next 
         Generation Sequencing Format Files
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(
     person("Arunkumar", "Srinivasan", , "asrinivasan@openanalytics.eu", 
     c("aut", "cre")), person("Open Analytics", role = "cph"))
