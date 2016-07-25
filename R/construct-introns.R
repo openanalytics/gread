@@ -1,4 +1,4 @@
-#' @title Construct introns from \code{gtf} or \code{gff} objects
+#' @title Construct introns from gtf/gff objects
 #'
 #' @description This function generates intronic coordinates by extracting 
 #' all the \code{exons} from a \code{gtf} or \code{gff} object.
@@ -9,7 +9,8 @@
 #' and returned invisibily, else just the \code{intron} coordinates are 
 #' returned.
 #' @return An object of class \code{gtf/gff} with updated \code{intron} 
-#' coordinates or just the intron coordinates depending on \code{update}.
+#' coordinates or just the intron coordinates depending on \code{update}. 
+#' They all inherit from \code{GRanges}.
 #' @export
 #' @examples
 #' path <- system.file("tests", package="gread")
@@ -21,20 +22,21 @@
 #' # same as above, but returns only constructed introns
 #' introns <- construct_introns(gtf, update=FALSE)
 #' @seealso \code{\link{supported_formats}} \code{\link{read_format}} 
-#' \code{\link{extract}} \code{\link{tidy_cols}} \code{\link{as_granges}} 
+#' \code{\link{extract}} \code{\link{as_granges}} 
 construct_introns <- function(x, update=TRUE) {
-    stopifnot(inherits(x, "gtf") || inherits(x, "gff"), 
-                "feature" %chin% names(x), 
+    stopifnot(is.gtf(x) || is.gff(x))
+    x = as_data_table(x)
+    stopifnot("feature" %chin% names(x), 
                 "transcript_id" %chin% names(x), 
                 update %in% c(TRUE, FALSE))
 
     # to please R CMD CHECK
-    feature=seqname=transcript_id=NULL
+    feature=seqnames=transcript_id=NULL
     x_class = copy(class(x))
     exons = x[feature == "exon"]
     if (!nrow(exons)) stop("feature == 'exon' returned 0 rows.")
-    setorderv(exons, c("transcript_id", "seqname", "start", "end", "strand"))
-    introns = exons[, .(seqname = seqname[1L], 
+    setorderv(exons, c("transcript_id", "seqnames", "start", "end", "strand"))
+    introns = exons[, .(seqnames = seqnames[1L], 
                         start = end[seq_len(.N-1L)]+1L, 
                         end = start[seq_len(.N-1L)+1L]-1L,
                         feature = "intron",
@@ -45,7 +47,7 @@ construct_introns <- function(x, update=TRUE) {
         stop("Exons for transcript ids [", paste(ids, collaspse=" "), 
             "] have start > end")
     exons[, c(setdiff(names(introns), "transcript_id")) := NULL]
-    exons = unique(exons, by="transcript_id")
+    exons = unique(shallow(exons, reset_class=TRUE), by="transcript_id")
     ecols = names(exons)
     introns[exons, (ecols) := mget(ecols), on="transcript_id"]
     # reset all exon related cols
@@ -53,14 +55,15 @@ construct_introns <- function(x, update=TRUE) {
     colorder = names(x)
     if (update) {
         x = rbind(x, introns)
-        setorderv(x, c("seqname", "start", "end"))
+        setorderv(x, c("seqnames", "start", "end"))
         x = x[, .SD, by="transcript_id"]
         setattr(x, 'class', x_class)
         setcolorder(x, colorder)
-        return(x)
+        ans = x
     } else {
         setcolorder(introns, colorder)
-            setattr(introns, 'class', unique(c("intron", x_class)))
-        return(introns[])
+        setattr(introns, 'class', c("intron", "data.table", "data.frame"))
+        ans = introns
     }
+    new(class(ans)[1L], as(setDF(ans), "GRanges"))
 }

@@ -8,7 +8,8 @@ Authors@R: c(
     c("aut", "cre")), person("Open Analytics", role = "cph"))
 Maintainer: Arunkumar Srinivasan <asrinivasan@openanalytics.eu>
 Depends:
-    R (>= 3.3)
+    R (>= 3.3),
+    GenomicRanges
 Imports:
     stats,
     utils,
@@ -20,7 +21,6 @@ Imports:
     Rsamtools,
     rtracklayer,
     IRanges,
-    GenomicRanges,
     GenomicFeatures,
     GenomicAlignments
 Suggests:

@@ -1,49 +1,4 @@
-## internal functions ---------------------------------
-
-#' @title Convert to GRanges object
-#' 
-#' @description Convert \code{gtf}, \code{gff}, \code{bed}, \code{bam} 
-#' or a valid \code{data.table} to a GRanges object, preserving all 
-#' additional columns.
-#'
-#' @param x An object of class \code{gtf}, \code{gff}, \code{bed} or 
-#' \code{bam} or a valid \code{data.table} object.
-#' @param ignore_strand Logical argument to pass to \code{GRanges} function. 
-#' Indicates whether \code{strand} should be ignored when constructing 
-#' \code{GRanges} object or not. Default is \code{FALSE}.
-#' @return A \code{GRanges} object.
-#' @export
-#' @aliases as_granges
-#' @examples
-#' path <- system.file("tests", package="gread")
-#' gff_file <- file.path(path, "sample.gff")
-#' gtf_file <- file.path(path, "sample.gtf")
-#' bed_file <- file.path(path, "sample.bed")
-#' bam_file <- file.path(path, "sample.bam")
-#' 
-#' gff <- read_format(gff_file)
-#' gtf <- read_format(gtf_file)
-#' bed <- read_format(bed_file)
-#' bam <- read_format(bam_file)
-#' 
-#' as_granges(gff)
-#' as_granges(gtf)
-#' as_granges(bed)
-#' as_granges(bam)
-#' 
-#' as_granges(gff, ignore_strand=FALSE)
-#' as_granges(gtf, ignore_strand=FALSE)
-#' as_granges(bed, ignore_strand=FALSE)
-#' as_granges(bam, ignore_strand=FALSE)
-#' @seealso \code{\link{read_format}} 
-#' \code{\link{tidy_cols}} \code{\link{extract}} \code{\link{construct_introns}}
-as_granges <- function(x, ignore_strand=FALSE) {
-
-    stopifnot(is.gtf(x)||is.gff(x)||is.bed(x)||is.bam(x)||is.data.table(x))
-    x = shallow(x)
-    if (ignore_strand) x[, "strand" := NULL]
-    as(setDF(x), "GRanges")
-}
+## internal helper functions -------------------------------------------------
 
 #' @title Return only those rows where rows per group is > 1.
 #'
@@ -122,7 +77,7 @@ find_overlaps <- function(x, y, ignore_redundant=FALSE,
 #' @return A \code{data.table} with reduced ranges.
 reduce_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
     # to please R CMD CHECK
-    group=seqname=i.strand=`..N..`=NULL
+    group=seqnames=i.strand=`..N..`=NULL
     stopifnot(length(by) == 1L, by %in% names(x), is.gtf(x) || is.gff(x) 
         || is.bed(x) || is.bam(x), ignore_strand %in% c(FALSE, TRUE))
     red = as.data.frame(GenomicRanges::reduce(GenomicRanges::split(as_granges(
@@ -130,11 +85,10 @@ reduce_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
     setDT(red)[, group := NULL]
     setcolorder(red, c("seqnames", "start", "end", "width", "strand", 
                         "group_name"))
-    setnames(red, c("seqnames", "width", "group_name"), c("seqname", 
-                        "length", by))
-    red[, `:=`(seqname=as.character(seqname), strand=as.character(strand))]
+    setnames(red, c("width", "group_name"), c("length", by))
+    red[, `:=`(seqnames=as.character(seqnames), strand=as.character(strand))]
     # restore original order, nomatch = "errror" would be great to have here!
-    ux = unique(shallow(x, c(by, "strand")), by=c(by))
+    ux = unique(shallow(x, c(by, "strand"), reset_class=TRUE), by=c(by))
     red = red[ux, on=c(by)]
     # if ignore_strand, replace strand
     if (ignore_strand) red[, strand := i.strand]
@@ -162,18 +116,17 @@ disjoin_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
         is.bed(x) || is.bam(x), ignore_strand %in% c(FALSE, TRUE))
 
     # to please R CMD CHECK
-    group=seqname=i.strand=NULL
+    group=seqnames=i.strand=NULL
     dj = as.data.frame(GenomicRanges::disjoin(GenomicRanges::split(as_granges(
                         x, ignore_strand), x[[by]])))
     setDT(dj)[, group := NULL]
     setcolorder(dj, c("seqnames", "start", "end", "width", "strand", 
                         "group_name"))
-    setnames(dj, c("seqnames", "width", "group_name"), c("seqname", 
-                        "length", by))
-    dj[, `:=`(seqname=as.character(seqname), strand=as.character(strand))]
+    setnames(dj, c("width", "group_name"), c("length", by))
+    dj[, `:=`(seqnames=as.character(seqnames), strand=as.character(strand))]
     # restore original order
     # TODO: revisit when nomatch = "error" is implemented
-    ux = unique(shallow(x, c(by, "strand")), by=c(by))
+    ux = unique(shallow(x, c(by, "strand"), reset_class=TRUE), by=c(by))
     dj = dj[ux, on=c(by)]
     # if ignore_strand, replace strand
     if (ignore_strand) dj[, strand := i.strand]
@@ -197,7 +150,7 @@ disjoin_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
 #' @return A \code{data.table} with intersecting ranges.
 intersect_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
     # to please R CMD CHECK
-    group=seqname=i.strand=NULL
+    group=seqnames=i.strand=NULL
     stopifnot(length(by) == 1L, by %in% names(x), is.gtf(x) || is.gff(x) || 
         is.bed(x) || is.bam(x), ignore_strand %in% c(FALSE, TRUE))
     s_gr = GenomicRanges::split(as_granges(x, ignore_strand), x[[by]])
@@ -205,11 +158,10 @@ intersect_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
     setDT(isect)[, group := NULL]
     setcolorder(isect, c("seqnames", "start", "end", "width", "strand", 
                         "group_name"))
-    setnames(isect, c("seqnames", "width", "group_name"), c("seqname", 
-                        "length", by))
-    isect[, `:=`(seqname=as.character(seqname), strand=as.character(strand))]
+    setnames(isect, c("width", "group_name"), c("length", by))
+    isect[, `:=`(seqnames=as.character(seqnames), strand=as.character(strand))]
     # restore original order, nomatch = "errror" would be great to have here!
-    ux = unique(shallow(x, c(by, "strand")), by=c(by))
+    ux = unique(shallow(x, c(by, "strand"), reset_class=TRUE), by=c(by))
     isect = isect[ux, on=c(by)]
     # if ignore_strand, replace strand
     if (ignore_strand) isect[, strand := i.strand]
@@ -236,14 +188,16 @@ intersect_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
 #' y <- gread:::shallow(x) # only copies column pointers
 #' class(y) # class(x) is retained
 #' }
-shallow <- function(x, cols = names(x)) {
+shallow <- function(x, cols = names(x), reset_class = FALSE) {
     stopifnot(is.data.table(x), all(cols %in% names(x)))
     ans = vector("list", length(cols))
     setattr(ans, 'names', data.table::copy(cols))
     for (col in cols)
         ans[[col]] = x[[col]]
     setDT(ans)
-    setattr(ans, 'class', data.table::copy(class(x)))
+    class = if (!reset_class) data.table::copy(class(x)) 
+            else c("data.table", "data.frame")
+    setattr(ans, 'class', class)
     ans[]
 }
 
@@ -272,7 +226,7 @@ shallow <- function(x, cols = names(x)) {
 as_bam <- function(x) {
     stopifnot(inherits(x, "GAlignments"))
     ans = list(
-            seqname=as.character(seqnames(x)), 
+            seqnames=as.character(seqnames(x)), 
             start=start(x), 
             end=end(x), 
             strand=as.character(strand(x)),
@@ -306,7 +260,7 @@ as_bam <- function(x) {
 # #' @return A \code{TxDb} object.
 # #' @aliases as_txdb
 # #' @seealso \code{\link{as_granges}} \code{\link{read_format}} 
-# #' \code{\link{tidy_cols}} \code{\link{extract}}
+# #' \code{\link{extract}}
 # #' @export
 # #' @examples
 # #' path <- system.file("tests", package="gread")

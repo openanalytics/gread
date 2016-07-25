@@ -14,8 +14,8 @@
 #' features \code{intron} and \code{exon}.
 #' @param transcript_id Column name in \code{x} corresponding to transcript id.
 #' @param gene_id Column name in \code{x} corresponding to gene id.
-#' @return Returns a list of data.table containing \emph{non overlapping 
-#' exons} and \emph{non overlapping introns}.
+#' @return Returns a list of \code{GRanges} objects containing 
+#' \emph{non overlapping exons} and \emph{non overlapping introns}.
 #' @examples
 #' \dontrun{
 #' path <- system.file("tests", package="gread")
@@ -25,13 +25,19 @@
 #' }
 non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){
 
-    # to please R CMD CHECK
-    feature=idx=epos=ecnt=keep=edge=check=V1=seqname=pos=e.gid=i.gid=N=NULL
     # taken from gffutils::non_overlaps    
-    stopifnot(is.gtf(x) || is.gff(x), "feature" %chin% names(x), 
-        transcript_id %chin% names(x), gene_id %chin% names(x))
+    stopifnot(is.gtf(x) || is.gff(x))
+    x = as_data_table(x)
+    stopifnot("feature" %chin% names(x), 
+                transcript_id %chin% names(x), 
+                gene_id %chin% names(x))
+    # to please R CMD CHECK
+    feature=idx=epos=ecnt=keep=edge=check=V1=seqnames=pos=e.gid=i.gid=N=NULL
     uniq_features = unique(x[["feature"]])
-    if (!"intron" %in% uniq_features) x = construct_introns(x)
+    if (!"intron" %in% uniq_features) {
+        xx = new(class(x)[1L], as_granges(x))
+        x = as_data_table(construct_introns(xx))
+    }
     uniq_features = unique(x[["feature"]])
     stopifnot(all(c("intron", "exon") %in% uniq_features))
     i = x[feature == "intron"]
@@ -104,21 +110,21 @@ non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){
     # meaning there is a smaller intron at the same position for this gene 
     # that we've already accounted for
     ni = i[!a_minus_w$queryHits]
-    setkey(ni, "seqname", "start", "end")
+    setkey(ni, "seqnames", "start", "end")
     tmp__ = ni[[transcript_id]]
     ni[, c(transcript_id) := as.list(tmp__)]
-    ni = ni[, c("seqname", "start", "end", "strand", 
+    ni = ni[, c("seqnames", "start", "end", "strand", 
                     transcript_id, gene_id), with=FALSE]
-    count = ni[, .N, by = list(seqname, start, end)]
+    count = ni[, .N, by = list(seqnames, start, end)]
     # code here is moved to the end... July 25 (due to overlapping genes 
     # interpretation difference between intron and exon)
 
     # non_overlapping exon
     # edited May 30th 2013, redid the whole thing: July 17 2013
     # data.table ABSOLUTELY ROCKS!
-    ne = e[, list(seqname=seqname[1L], pos=c(start, end)), by=c(gene_id)]
+    ne = e[, list(seqnames=seqnames[1L], pos=c(start, end)), by=c(gene_id)]
     setkey(ne)
-    ne = ne[, list(seqname=seqname[1L], start=pos[1:(.N-1)], end=pos[2:.N]), 
+    ne = ne[, list(seqnames=seqnames[1L], start=pos[1:(.N-1)], end=pos[2:.N]), 
                     by=c(gene_id)]
 
     nolaps = find_overlaps(ne, ni, type = "any")
@@ -128,10 +134,10 @@ non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){
 
     ne = ne[!unique(nolaps$queryHits)]
     ne = ne[start != end]
-    ne = ne[, list(seqname=seqname[1L], pos=c(start, end)), by=c(gene_id)]
+    ne = ne[, list(seqnames=seqnames[1L], pos=c(start, end)), by=c(gene_id)]
     setkeyv(ne, c(gene_id, "pos"))
     ne = ne[ne[, .N, by=key(ne)][N == 1]][, N := NULL]
-    ne = ne[, list(seqname=seqname[1L], start=pos[c(TRUE, FALSE)], 
+    ne = ne[, list(seqnames=seqnames[1L], start=pos[c(TRUE, FALSE)], 
                     end=pos[c(FALSE, TRUE)]), by=c(gene_id)]
     setkeyv(ne, c(gene_id))
 
@@ -142,7 +148,7 @@ non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){
     setnames(ne.rest, "transcript_id", transcript_id)
     ne = ne[ne.rest]
     setcolorder(ne, names(ni))
-    setkey(ne, seqname, start, end)
+    setkey(ne, seqnames, start, end)
     
     # now get overlapping intron
     ni[count[N > 1], `:=`(strand=paste(unique(strand), sep="", collapse=""), 
@@ -150,11 +156,13 @@ non_overlaps <- function(x, transcript_id="transcript_id", gene_id="gene_id"){
                         gene_id=list(unique(unlist(gene_id)))), 
        by=.EACHI] ## version 1.9.3+
     setnames(ni, c("transcript_id", "gene_id"), c(transcript_id, gene_id))
-    ni = unique(ni)
+    ni = unique(shallow(ni, reset_class=TRUE))
     # calling unique on 'ni' is more efficient than this, since 'ni' is key'd. 
     # changed July 17 
     # .gff[["non_overlapping_intron"]] = ni[count, mult = "first"][, N := NULL]
     setkey(ne, NULL)
     setkey(ni, NULL)
+    ne = as(setDF(ne), "GRanges")
+    ni = as(setDF(ni), "GRanges")
     list(non_overlapping_exon = ne, non_overlapping_intron = ni)
 }

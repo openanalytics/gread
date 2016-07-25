@@ -38,7 +38,6 @@
 #' @importFrom utils capture.output head packageVersion read.table tail
 #' @importFrom stats na.omit
 #' @importFrom Rsamtools ScanBamParam scanBamFlag scanBamHeader
-#' @importFrom GenomicRanges GRanges split
 #' @importFrom IRanges IRanges
 #' @importMethodsFrom GenomicRanges disjoin reduce intersect  findOverlaps 
 #' @importMethodsFrom GenomicRanges countOverlaps seqnames start end strand

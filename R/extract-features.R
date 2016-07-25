@@ -6,7 +6,8 @@
 #' @details Extract features based on various criteria (usually intended for  
 #' obtaining read counts using \code{gcount} for a given \code{bam} file.
 #' 
-#' @param x Input object of class \code{gtf} or \code{gff}.
+#' @param x Input object of class \code{gtf} or \code{gff} which inherits 
+#' from \code{GRanges}.
 #' @param feature A character vector of (usually related) features to extract 
 #' from. One of \code{"gene_exon"}, \code{"gene"}, \code{"gene_intron"}, 
 #' \code{"exon"}, \code{"intron"}. NB: \code{"exon"} feature must be present 
@@ -51,10 +52,9 @@
 #' @return An object of class \code{"gene"} when \code{feature} is 
 #' \code{"gene"}, \code{"gene_exon"} or \code{"gene_intron"}, and of class 
 #' \code{"exon"} and \code{"intron"} when \code{feature} is \code{"exon"} or 
-#' \code{"intron"} respectively.
-#' @seealso \code{\link{read_format}} \code{\link{tidy_cols}} 
-#' \code{\link{as_granges}} \code{\link{extract}} 
-#' \code{\link{construct_introns}}
+#' \code{"intron"} respectively. They all inherit from \code{GRanges}.
+#' @seealso \code{\link{read_format}} \code{\link{as_granges}} 
+#' \code{\link{extract}} \code{\link{construct_introns}}
 #' @export
 #' @examples
 #' path <- system.file("tests", package="gread")
@@ -74,14 +74,18 @@ extract <- function(x, feature=c("gene_exon", "gene", "gene_intron", "exon",
     splits  = unlist(strsplit(feature, "_", fixed=TRUE))
     feature = splits[1L]
     subfeature = if (is.na(splits[2L])) NULL else splits[2L]
-    stopifnot(is.gtf(x) || is.gff(x), "feature" %in% names(x), 
-        ignore_strand %in% c(FALSE, TRUE), transcript_id %in% names(x), 
-        gene_id %in% names(x), nrow(x)>0L)
-    x = shallow(x) # TODO: use data.table:::shallow when exported
+    stopifnot(is.gtf(x) || is.gff(x))
+    x <- as_data_table(x)
+    stopifnot("feature" %in% names(x), 
+                ignore_strand %in% c(FALSE, TRUE), 
+                transcript_id %in% names(x), 
+                gene_id %in% names(x), nrow(x)>0L)
     setattr(x, 'class', c(match.arg(feature), class(x)))
-    setnames(x, c(transcript_id, gene_id), c("transcript_id", "gene_id"))
-    extract_feature(x, unique(x$feature), subfeature, 
+    setnames(x, c(transcript_id, gene_id), 
+                c("transcript_id", "gene_id"))
+    ans = extract_feature(x, unique(x$feature), subfeature, 
                 match.arg(type), ignore_strand, ...)
+    new(class(ans)[1L], as(setDF(ans), "GRanges"))
 }
 
 # ----- internal functions for extracting specific features ----- #
@@ -99,24 +103,24 @@ extract_feature.gene <- function(x, uniq_features, feature, type,
                         ignore_strand=FALSE, ...) {
 
     # to pleae R CMD CHECK
-    seqname=gene_id=transcript_id=NULL
+    seqnames=gene_id=transcript_id=NULL
     if (is.null(feature)) {
         if (!"exon" %in% uniq_features)
             stop("'exon' must be a feature in input object 'x'.")
         construct_transcripts <- function(x) {
-            x[feature %chin% "exon", .(seqname=seqname[1L], start=min(start), 
+            x[feature %chin% "exon", .(seqnames=seqnames[1L], start=min(start), 
                     end=max(end), strand=strand[1L], gene_id=gene_id[1L]), 
             by="transcript_id"]
         }
         transcripts = construct_transcripts(x)
     } else {
-        cols=c("transcript_id", "seqname", "start", "end", "strand", "gene_id")
+        cols=c("transcript_id", "seqnames", "start", "end", "strand", "gene_id")
         .feature = feature
         transcripts = x[feature %chin% .feature, cols, with=FALSE]
     }
     ans = switch (type, 
                     default = {
-                        genes = transcripts[, .(seqname=seqname[1L], 
+                        genes = transcripts[, .(seqnames=seqnames[1L], 
                             start=min(start), end=max(end), strand=strand[1L], 
                         transcript_id=paste(unique(transcript_id), 
                             collapse=";")), by="gene_id"]
@@ -149,7 +153,7 @@ extract_feature.gene <- function(x, uniq_features, feature, type,
                     }, 
                     intersect = {
                         genes = transcripts[, if (max(start) <= min(end)) 
-                                .(seqname=seqname[1L], start=max(start), 
+                                .(seqnames=seqnames[1L], start=max(start), 
                                 end=min(end), strand=strand[1L], 
                                 transcript_id=paste(unique(transcript_id), 
                                     collapse=";")), by="gene_id"]
@@ -176,7 +180,7 @@ extract_feature.gene <- function(x, uniq_features, feature, type,
                 collapse=";")), by="queryHits"]
     genes[, "overlaps":=gene_id][olaps$queryHits, "overlaps":=olaps$gene_id]
 
-    colorder = c("seqname", "start", "end", "length", "strand", 
+    colorder = c("seqnames", "start", "end", "length", "strand", 
                     "transcript_id", "gene_id", "overlaps")
     setcolorder(genes, colorder)
     genes[]
@@ -188,7 +192,7 @@ extract_feature.exon <- function(x, uniq_features, feature, type,
 
     # to please R CMD CHECK
     transcript_id=NULL
-    cols = c("transcript_id", "seqname", "start", "end", "strand", "gene_id")
+    cols = c("transcript_id", "seqnames", "start", "end", "strand", "gene_id")
     .feature = if (is.null(feature)) "exon" else feature
     exons = x[feature %chin% .feature, cols, with=FALSE]
     ans = switch (type, 
@@ -258,7 +262,7 @@ extract_feature.exon <- function(x, uniq_features, feature, type,
     # ans[, "overlaps" := gene_id][olaps$queryHits, "overlaps" := 
     #                       olaps$gene_id]
 
-    colorder = c("seqname", "start", "end", "length", "strand", 
+    colorder = c("seqnames", "start", "end", "length", "strand", 
                     "transcript_id", "gene_id") #, "overlaps")
     setcolorder(exons, colorder)
     exons[]
@@ -269,14 +273,16 @@ extract_feature.intron <- function(x, uniq_features, feature, type,
     stopifnot("exon" %in% uniq_features)
     # to please R CMD CHECK
     transcript_id=NULL
-    cols = c("transcript_id", "seqname", "start", "end", "strand", "gene_id")
+    cols = c("transcript_id", "seqnames", "start", "end", "strand", "gene_id")
     .feature = if (is.null(feature)) "intron" else feature
     introns = x[feature %chin% .feature, cols, with=FALSE]
     if (nrow(introns) == 0L) {
         # most likely the object doesn't have introns, so construct them
         warning("No introns found in input object. Attempting to construct 
             introns using construct_introns().")
-        introns = construct_introns(x, update=FALSE)
+        xx = new(class(x)[2L], as_granges(x))
+        introns = as_data_table(construct_introns(xx, update=FALSE))
+        setattr(introns, 'class', data.table::copy(class(x)))
     }
     if (nrow(introns) == 0L)
         stop("construct_introns() resulted in 0 introns as well. 
@@ -348,15 +354,40 @@ extract_feature.intron <- function(x, uniq_features, feature, type,
     # ans[, "overlaps" := gene_id][olaps$queryHits, "overlaps" := 
     #                               olaps$gene_id]
 
-    colorder = c("seqname", "start", "end", "length", "strand", 
+    colorder = c("seqnames", "start", "end", "length", "strand", 
                     "transcript_id", "gene_id") #, "overlaps")
     setcolorder(introns, colorder)
     introns[]
 }
 
-# ----- Helper functions for extract_features ----- #
+# ----- Helper functions for extract_features --------------------------------
 
 is.gtf <- function(x) inherits(x, 'gtf')
 is.gff <- function(x) inherits(x, 'gff')
 is.bed <- function(x) inherits(x, 'bed')
 is.bam <- function(x) inherits(x, 'bam')
+
+#' @title Convert gtf/gff/bam/bed S4 objects to data.table and preserve class
+#' 
+#' @description \code{as.data.table} converts the input object to 
+#' \code{data.table}, but strips away all other classes except 
+#' \code{data.table} and \code{data.frame}. 
+#' 
+#' This internal function is a simple wrapper to \code{as.data.table} but 
+#' also retains the extra class information of the input object.
+#' @aliases as_data_table
+#' @return A data.table object with input class preserved.
+#' @examples
+#' \dontrun{
+#' setClass("foo", contains="GRanges")
+#' x = new("foo", GRanges(letters[1:5], IRanges(1:5, 6:10)))
+#' class(x) # [1] "foo"
+#' class(gread:::as_data_table(x)) # [1] "foo" "data.table" "data.frame"
+#' }
+as_data_table <- function(x, reset_class=FALSE) {
+    stopifnot(inherits(x, "GRanges"))
+    cl = if (identical(class(x), "GRanges") || reset_class) NULL else class(x)
+    ans = as.data.table(x)
+    setattr(ans, 'class', c(cl, "data.table", "data.frame"))
+    ans[]
+}

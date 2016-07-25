@@ -1,68 +1,11 @@
-#' @title Tidy up gtf/gff/bed/bam objects
-#'
-#' @description Tidy up data depending on the type of input format. 
-#'
-#' Note that this operation is performed \emph{by reference}, to avoid 
-#' unnecessary copies, for efficiency. Therefore there is no need to assign 
-#' the result back to a variable. 
-#'
-#' @details In case of \code{gtf} and \code{gff} formats, the 
-#' \code{attributes} column is extracted into separate columns after which 
-#' it is removed (by default). Set \code{remove_cols} to \code{NULL} if you 
-#' would like to retain the column even after tidying up.
-#' 
-#' In case of \code{bed} and \code{bam} files, no columns are removed by 
-#' default. However, you can use \code{remove_cols} argument if necessary.
-#' 
-#' In case of \code{bam} files, the function \code{GAlignments} from the 
-#' \code{GenomicAlignments} Bioconductor package is used to read in the 
-#' file, with the additional arguments for \code{ScanBamParam()} function 
-#' using \code{NM} and \code{MD} tags by default.
-#'
-#' @seealso \code{\link{supported_formats}} \code{\link{read_format}} 
-#' \code{\link{extract}} \code{\link{construct_introns}} 
-#' \code{\link{as_granges}}
-#' @param x Input object, of class \code{gtf}, \code{gff}, \code{bed} or 
-#' \code{bam}.
-#' @param remove_cols A character vector of column names to be removed.
-#' @param verbose Logical. Default is \code{FALSE}. If \code{TRUE}, helpful 
-#' status messages are printed on to the console. 
-#' @param ... Arguments that are ignored at the moment.
-#' @aliases tidy_cols tidy_cols.gtf tidy_cols.gff tidy_cols.bed tidy_cols.bam
-#' @return A tidied object of class \code{gtf}, \code{gff}, \code{bed} or 
-#' \code{bam}, that inherits from \code{data.table}.
-#' @export
-#' @examples
-#' path <- system.file("tests", package="gread")
-#' gff_file <- file.path(path, "sample.gff")
-#' gtf_file <- file.path(path, "sample.gtf")
-#' bed_file <- file.path(path, "sample.bed")
-#' bam_file <- file.path(path, "sample.bam")
-#' 
-#' gtf <- read_format(gtf_file, tidy_cols=FALSE)
-#' gff <- read_format(gtf_file, tidy_cols=FALSE)
-#' bed <- read_format(bed_file, tidy_cols=FALSE)
-#' bam <- read_format(bam_file, tidy_cols=FALSE)
-#' 
-#' tidy_cols(gtf, remove_cols=NULL)[]          # tidy attr. col, but not remove
-#' tidy_cols(gff, remove_cols=NULL)[]          # same as above, but for gff
-#' tidy_cols(gtf, remove_cols="attributes")[]  # tidy & remove attr. col
-#' tidy_cols(gff, remove_cols="attributes")[]  # same as above, but for gff
-#' 
-#' tidy_cols(bed, remove_cols="name")[]        # remove name column
-#' tidy_cols(bam, remove_cols=c("NM", "MD"))[] # remove additional loaded tags 
 tidy_cols <- function(x, ...) {
     UseMethod("tidy_cols")
 }
 
-#' @rdname tidy_cols
-#' @export
 tidy_cols.default <- function(x, ...) {
     stop("No default method available.")
 }
 
-#' @rdname tidy_cols
-#' @export
 tidy_cols.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     stopifnot(identical(head(names(x), 9L), format_names("gtf")))
     meta_fun <- function(vec, attr) {
@@ -101,8 +44,6 @@ tidy_cols.gtf <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     invisible(x)
 }
 
-#' @rdname tidy_cols
-#' @export
 tidy_cols.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     stopifnot(identical(head(names(x), 9L), format_names("gff")))
     meta_fun <- function(vec, attr) {
@@ -137,22 +78,18 @@ tidy_cols.gff <- function(x, remove_cols="attributes", verbose=FALSE, ...) {
     invisible(x)
 }
 
-#' @rdname tidy_cols
-#' @export
 tidy_cols.bed <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
     stopifnot(identical(names(x), head(format_names("bed"), length(x))))
     remove_cols(x, remove_cols, verbose) # updates by reference
     invisible(x)
 }
 
-#' @rdname tidy_cols
-#' @export
 tidy_cols.bam <- function(x, remove_cols=NULL, verbose=FALSE, ...) {
     remove_cols(x, remove_cols, verbose) # updates by reference
     invisible(x)
 }
 
-## internal function used in tidy_cols methods -------------------
+## internal helper functions -------------------------------------------------
 
 remove_cols <- function(x, cols, verbose) {
     if (is.null(cols)) {

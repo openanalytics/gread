@@ -19,7 +19,6 @@
 #' otherwise.
 #' @aliases test_gread
 #' @seealso \code{\link{read_format}} \code{\link{extract}} 
-#' \code{\link{tidy_cols}}
 #' @examples
 #' \dontrun{
 #' gread:::test_gread()
@@ -28,7 +27,7 @@ test_gread <- function(verbose=FALSE, pkg="pkg", silent=FALSE) {
     if (exists("test_gread", .GlobalEnv, inherits=FALSE)) { # package developer
         if ("package:gread" %in% search()) stop("gread package loaded")
         if (.Platform$OS.type == "unix") {
-            d = path.expand("~/Documents/oa-git/gread/inst/tests")
+            d = path.expand("~/Documents/oa-github/gread/inst/tests")
         }
     } else { # user
         d = paste(getNamespaceInfo("gread", "path"), "/tests", sep="")

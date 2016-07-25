@@ -19,8 +19,8 @@ to filter on. The column/value should be a \emph{character} vector
 containing the values to \emph{retain}.}
 }
 \value{
-A \code{gtf} object containing just those transcripts that overlap 
-with the provided bed file.
+A \code{gtf} object that inherits from \code{GRanges} containing 
+just those transcripts that overlap with the provided bed file.
 }
 \description{
 Given a \code{gtf} file, and a \code{bed} file, this function 
@@ -31,6 +31,5 @@ function is at the moment only for internal purposes.
 \seealso{
 \code{\link{read_format}}, \code{\link{non_overlaps}}, 
 \code{\link{construct_introns}}, \code{\link{extract}}
-\code{\link{tidy_cols}}
 }
 

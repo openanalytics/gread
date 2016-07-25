@@ -1,0 +1,7 @@
+setClass("gtf", contains="GRanges")
+setClass("gff", contains="GRanges")
+setClass("bed", contains="GRanges")
+setClass("bam", contains="GRanges")
+setClass("gene", contains="GRanges")
+setClass("exon", contains="GRanges")
+setClass("intron", contains="GRanges")
