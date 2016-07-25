@@ -132,24 +132,6 @@ sufficient in most cases.
 * The function recognises the file format automatically with proper defaults. 
 So for most cases with default scenarios, this is quite useful.
 
-## The `tidy_cols()` function
-
-In case the default tidying removes columns that you'd like to retain, you 
-can set `tidy_cols=FALSE` first while loading the files using the function(s) 
-shown above, and then use the function `tidy_cols()` to remove just the 
-columns you don't need using the `remove_cols` argument.
-
-```{r}
-(gtf = read_format("sample.gtf", tidy_cols=FALSE))
-
-## each column of attributes will become a column while tidying up
-## retain all attributes except transcript_id and attributes
-tidy_cols(gtf, remove_cols = c("tss_id", "attributes"))[]
-```
-
-The input object `gtf` is updated *by reference*. There is therefore no need 
-to assign the result back to a variable.
-
 ### Extracting various features
 
 The `gread()` package provides an useful function `extract()` to extract 
