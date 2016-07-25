@@ -375,6 +375,10 @@ is.bam <- function(x) inherits(x, 'bam')
 #' 
 #' This internal function is a simple wrapper to \code{as.data.table} but 
 #' also retains the extra class information of the input object.
+#' 
+#' @param x An object that inherits from \code{GRanges}.
+#' @param reset_class logical (default \code{FALSE}). If \code{TRUE}, resets 
+#' the class to \code{"data.table", "data.frame"}.
 #' @aliases as_data_table
 #' @return A data.table object with input class preserved.
 #' @examples

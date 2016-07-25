@@ -6,6 +6,12 @@
 \usage{
 as_data_table(x, reset_class = FALSE)
 }
+\arguments{
+\item{x}{An object that inherits from \code{GRanges}.}
+
+\item{reset_class}{logical (default \code{FALSE}). If \code{TRUE}, resets 
+the class to \code{"data.table", "data.frame"}.}
+}
 \value{
 A data.table object with input class preserved.
 }

@@ -177,6 +177,8 @@ intersect_overlaps <- function(x, by="gene_id", ignore_strand=FALSE) {
 #' internal use only.
 #' @param x A \code{data.table}.
 #' @param cols Character vector of column names (from \code{x}).
+#' @param reset_class logical (default \code{FALSE}). If \code{TRUE}, resets 
+#' the class to \code{"data.table", "data.frame"}.
 #' @return A shallow copied \code{data.table}.
 #' @examples
 #' \dontrun{
