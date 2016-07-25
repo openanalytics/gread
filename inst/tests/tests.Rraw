@@ -13,6 +13,7 @@ if (!exists("test_gread", .GlobalEnv, inherits=FALSE)) {
     disjoin_overlaps   = gread:::disjoin_overlaps
     intersect_overlaps = gread:::intersect_overlaps
     as_granges         = gread:::as_granges
+    as_data_table      = gread:::as_data_table
     # as_txdb            = gread:::as_txdb
     strictly_nonunique = gread:::strictly_nonunique
     shallow            = gread:::shallow
