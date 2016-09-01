@@ -34,4 +34,4 @@ License: GPL-3
 LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
-biocViews: Annotation, DataImport, Sequencing, RNASeq, Software
+biocViews: Annotation, DataImport, Sequencing, RNASeq, Software, Coverage
